@@ -151,12 +151,12 @@ class App extends Component {
       levels[i + 1][downstairs[i].x][downstairs[i].y] = 'downstairs'
     }
     for (let i = 0; i < heals.length; i++) {
-      for (let j = 0; j < heals[i].length; j++){
+      for (let j = 0; j < heals[i].length; j++) {
         levels[i + 1][heals[i][j].coords.x][heals[i][j].coords.y] = 'heals'
       }
     }
     for (let i = 0; i < memes.length; i++) {
-      for (let j = 0; j < memes[i].length; j++){
+      for (let j = 0; j < memes[i].length; j++) {
         levels[i + 1][memes[i][j].coords.x][memes[i][j].coords.y] = 'memes'
       }
     }
@@ -171,14 +171,6 @@ class App extends Component {
     }
     // update state with things
     this.setState({ things, levels })
-    // console.log('downstairs', downstairs)
-    // console.log('upstairs', upstairs)
-    // console.log('boss', boss)
-    // console.log('player', player)
-    // console.log('weapons', weapons)
-    // console.log('heals', heals)
-    // console.log('memes', memes)
-    // console.log('levels', levels)
   }
   // finds tunnel space with nothing in it
   getEmpty = (curThings, level, things) => {
@@ -191,12 +183,12 @@ class App extends Component {
     noThingsAt = !thingCoords.some(e => e.x === x && e.y === y)
     if (Array.isArray(things)) {
       for (let i = 0; i < things.length; i++) {
-       getRandCoord()
+        getRandCoord()
       }
     } else {
       getRandCoord()
     }
-     function getRandCoord(){
+    function getRandCoord() {
       do {
         x = Math.floor(Math.random() * level.length)
         y = Math.floor(Math.random() * level[0].length)
