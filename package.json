@@ -1,8 +1,9 @@
 {
   "name": "mazes-and-memes",
-  "version": "0.1.0",
+  "version": "1.5.1",
   "private": true,
   "dependencies": {
+    "immutability-helper": "^2.6.5",
     "node-sass-chokidar": "^0.0.3",
     "npm-run-all": "^4.1.2",
     "react": "^16.2.0",
