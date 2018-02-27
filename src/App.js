@@ -27,7 +27,9 @@ class App extends Component {
         upstairs: [],
         downstairs: [],
         boss: {}
-      }
+      },
+      lastVisited: { coords: { x: 12, y: 12 }, tile: 0 },
+      score: 0
     }
   }
   componentDidMount() {
@@ -216,6 +218,14 @@ class App extends Component {
       currentScreen
     })
   }
+  up = () => {
+    // const curY = this.state.lastVisited.coords.y
+    // const newY = curY - 1
+    // let copy = JSON.parse(JSON.stringify(this.state.lastVisited))
+    // copy.coords.y = newY
+    // this.setState({})
+    // this.setState(up(this.state))
+  };
   render() {
     // render the current screen
     switch (this.state.currentScreen) {
@@ -230,7 +240,8 @@ class App extends Component {
             fog={this.state.fog}
             things={this.state.things}
             levels={this.state.levels}
-            currentLevel={this.state.currentLevel} />
+            currentLevel={this.state.currentLevel}
+            up={this.up} />
         </div>
       )
       case 'combat': return (
@@ -245,6 +256,21 @@ class App extends Component {
     }
   }
 }
+// increment test function
+function up(state) {
+  // const lastTile = state.lastVisited.tile,
+  //   newTile = state.levels[state.currentLevel][state.things.player.coords.x][state.things.player.coords.y - 1],
+  //   newPlayerCoords = { x: state.things.player.coords.x, y: state.things.player.coords.y - 1 }
+  // return {
+  //   ...state,
+  //   levels: {
+  //     ...state.levels,
+  //     [state.currentLevel]: {
+  //       ...state.levels[state.currentLevel][state.lastVisited.coords.x][state.lastVisited.coords.y] = lastTile
+  //     }
+  //   }
+  // }
+}
 // random number 0-99
 function randomMeme() {
   return Math.floor(Math.random() * 99 + 1)
@@ -256,7 +282,6 @@ function create_maze(width, height, iterations) {
   const mazeWidth = width;
   const mazeHeight = height;
   if (!iterations) iterations = width * height;
-
   let moves = [];
   for (let i = 0; i < mazeHeight; i++) {
     maze[i] = [];
@@ -344,8 +369,9 @@ class StartScreen extends Component {
 }
 
 class MazeScreen extends Component {
+  // player movement functions
   render() {
-    const { switchScreen, fog, things, levels, currentLevel } = this.props
+    const { switchScreen, fog, things, levels, currentLevel, up } = this.props
     const { player, memes, heals, weapons, upstairs, downstairs, boss } = things
     const maze = levels[currentLevel]
     let rows = [], tileClass, row;
@@ -392,7 +418,7 @@ class MazeScreen extends Component {
           {rows}
         </div>
         <div className="dPad-container">
-          <div id="up" onClick={this.up} className="dPad"><span>^</span></div>
+          <div id="up" onClick={up} className="dPad"><span>^</span></div>
           <div id="left" onClick={this.left} className="dPad"><span>&lt;</span></div>
           <div id="center" className="dPad" onClick={switchScreen}>Combat</div>
           <div id="right" onClick={this.right} className="dPad"><span>&gt;</span></div>
