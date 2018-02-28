@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import './App.css';
+import React, { Component } from 'react'
+import './App.css'
+import update from 'immutability-helper'
 
 class App extends Component {
   constructor(props) {
@@ -18,7 +19,7 @@ class App extends Component {
       },
       memeJson: [],
       currentLevel: 1,
-      fog: false,
+      fog: true,
       things: {
         player: { x: 12, y: 12 },
         memes: [],
@@ -162,6 +163,13 @@ class App extends Component {
         levels[i + 1][memes[i][j].coords.x][memes[i][j].coords.y] = 'memes'
       }
     }
+    const lastVisited = {
+      coords: {
+        x: player.coords.x,
+        y: player.coords.y
+      },
+      tile: 0
+    }
     const things = {
       player: player,
       memes: memes,
@@ -172,7 +180,7 @@ class App extends Component {
       boss: boss
     }
     // update state with things
-    this.setState({ things, levels })
+    this.setState({ things, levels, lastVisited })
   }
   // finds tunnel space with nothing in it
   getEmpty = (curThings, level, things) => {
@@ -219,13 +227,17 @@ class App extends Component {
     })
   }
   up = () => {
-    // const curY = this.state.lastVisited.coords.y
-    // const newY = curY - 1
-    // let copy = JSON.parse(JSON.stringify(this.state.lastVisited))
-    // copy.coords.y = newY
-    // this.setState({})
-    // this.setState(up(this.state))
-  };
+    this.setState(up(this.state))
+  }
+  down = () => {
+    this.setState(down(this.state))
+  }
+  left = () => {
+    this.setState(left(this.state))
+  }
+  right = () => {
+    this.setState(right(this.state))
+  }
   render() {
     // render the current screen
     switch (this.state.currentScreen) {
@@ -241,7 +253,10 @@ class App extends Component {
             things={this.state.things}
             levels={this.state.levels}
             currentLevel={this.state.currentLevel}
-            up={this.up} />
+            up={this.up}
+            down={this.down}
+            left={this.left}
+            right={this.right} />
         </div>
       )
       case 'combat': return (
@@ -256,20 +271,69 @@ class App extends Component {
     }
   }
 }
-// increment test function
+// move north
 function up(state) {
-  // const lastTile = state.lastVisited.tile,
-  //   newTile = state.levels[state.currentLevel][state.things.player.coords.x][state.things.player.coords.y - 1],
-  //   newPlayerCoords = { x: state.things.player.coords.x, y: state.things.player.coords.y - 1 }
-  // return {
-  //   ...state,
-  //   levels: {
-  //     ...state.levels,
-  //     [state.currentLevel]: {
-  //       ...state.levels[state.currentLevel][state.lastVisited.coords.x][state.lastVisited.coords.y] = lastTile
-  //     }
-  //   }
-  // }
+  const lastTile = state.lastVisited.tile,
+    lastX = state.lastVisited.coords.x,
+    lastY = state.lastVisited.coords.y
+  const newTile = state.levels[state.currentLevel][lastX][lastY - 1]
+  if (newTile === 1) {
+    return
+  }
+  const state1 = update(state, { levels: { [state.currentLevel]: { [lastX]: { [lastY]: { $set: lastTile } } } } })
+  const state2 = update(state1, { things: { player: { coords: { $set: { x: lastX, y: lastY - 1 } } } } })
+  const state3 = update(state2, { lastVisited: { $set: { coords: { x: lastX, y: lastY - 1 } } } })
+  const state4 = update(state3, { lastVisited: { $merge: { tile: newTile } } })
+  const newState = update(state4, { levels: { [state.currentLevel]: { [lastX]: { [lastY - 1]: { $set: "player" } } } } })
+  return newState
+}
+// move south
+function down(state) {
+  const lastTile = state.lastVisited.tile,
+    lastX = state.lastVisited.coords.x,
+    lastY = state.lastVisited.coords.y
+  const newTile = state.levels[state.currentLevel][lastX][lastY + 1]
+  if (newTile === 1) {
+    return
+  }
+  const state1 = update(state, { levels: { [state.currentLevel]: { [lastX]: { [lastY]: { $set: lastTile } } } } })
+  const state2 = update(state1, { things: { player: { coords: { $set: { x: lastX, y: lastY + 1 } } } } })
+  const state3 = update(state2, { lastVisited: { $set: { coords: { x: lastX, y: lastY + 1 } } } })
+  const state4 = update(state3, { lastVisited: { $merge: { tile: newTile } } })
+  const newState = update(state4, { levels: { [state.currentLevel]: { [lastX]: { [lastY + 1]: { $set: "player" } } } } })
+  return newState
+}
+// move west
+function left(state) {
+  const lastTile = state.lastVisited.tile,
+    lastX = state.lastVisited.coords.x,
+    lastY = state.lastVisited.coords.y
+  const newTile = state.levels[state.currentLevel][lastX - 1][lastY]
+  if (newTile === 1) {
+    return
+  }
+  const state1 = update(state, { levels: { [state.currentLevel]: { [lastX]: { [lastY]: { $set: lastTile } } } } })
+  const state2 = update(state1, { things: { player: { coords: { $set: { x: lastX - 1, y: lastY } } } } })
+  const state3 = update(state2, { lastVisited: { $set: { coords: { x: lastX - 1, y: lastY } } } })
+  const state4 = update(state3, { lastVisited: { $merge: { tile: newTile } } })
+  const newState = update(state4, { levels: { [state.currentLevel]: { [lastX - 1]: { [lastY]: { $set: "player" } } } } })
+  return newState
+}
+// move east
+function right(state) {
+  const lastTile = state.lastVisited.tile,
+    lastX = state.lastVisited.coords.x,
+    lastY = state.lastVisited.coords.y
+  const newTile = state.levels[state.currentLevel][lastX + 1][lastY]
+  if (newTile === 1) {
+    return
+  }
+  const state1 = update(state, { levels: { [state.currentLevel]: { [lastX]: { [lastY]: { $set: lastTile } } } } })
+  const state2 = update(state1, { things: { player: { coords: { $set: { x: lastX + 1, y: lastY } } } } })
+  const state3 = update(state2, { lastVisited: { $set: { coords: { x: lastX + 1, y: lastY } } } })
+  const state4 = update(state3, { lastVisited: { $merge: { tile: newTile } } })
+  const newState = update(state4, { levels: { [state.currentLevel]: { [lastX + 1]: { [lastY]: { $set: "player" } } } } })
+  return newState
 }
 // random number 0-99
 function randomMeme() {
@@ -371,7 +435,7 @@ class StartScreen extends Component {
 class MazeScreen extends Component {
   // player movement functions
   render() {
-    const { switchScreen, fog, things, levels, currentLevel, up } = this.props
+    const { switchScreen, fog, things, levels, currentLevel, up, down, left, right } = this.props
     const { player, memes, heals, weapons, upstairs, downstairs, boss } = things
     const maze = levels[currentLevel]
     let rows = [], tileClass, row;
@@ -419,10 +483,10 @@ class MazeScreen extends Component {
         </div>
         <div className="dPad-container">
           <div id="up" onClick={up} className="dPad"><span>^</span></div>
-          <div id="left" onClick={this.left} className="dPad"><span>&lt;</span></div>
+          <div id="left" onClick={left} className="dPad"><span>&lt;</span></div>
           <div id="center" className="dPad" onClick={switchScreen}>Combat</div>
-          <div id="right" onClick={this.right} className="dPad"><span>&gt;</span></div>
-          <div id="down" onClick={this.down} className="dPad"><span>v</span></div>
+          <div id="right" onClick={right} className="dPad"><span>&gt;</span></div>
+          <div id="down" onClick={down} className="dPad"><span>v</span></div>
         </div>
       </div>
     )

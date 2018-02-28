@@ -7,9 +7,9 @@ Mazes and Memes is a *roguelike* dungeon crawler that aims to bring the theme of
 - The function to create random mazes
 - The functions to create each level including the things and coordinates inside it.
 - Rendering the 1st level
+- Player movement
 
 **TODO:**
-- Player movement
 - Player interaction
 - Handle combat
 - Add boss mechanics
