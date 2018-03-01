@@ -50,6 +50,7 @@
   overflow: hidden;
 }
 .maze {
+  z-index: 1;
   grid-column: 1/6;
   grid-row: 1/4;
   animation: fallIn 3s;
@@ -112,31 +113,61 @@
   grid-template-rows: repeat(3,1fr);
   grid-gap: 2px;
   margin: auto;
+  svg {
+    padding-left: 10px;
+    display: flex;
+
+  }
 }
 .dPad {
-  border: 1px solid black;
-  align-self: center;
-  padding: 22px 0;
+  
 }
 #up {
   grid-column: 2/3;
   grid-row: 1/2;
+  transform: rotate(90deg);
+}
+#up:active{
+  svg {
+    filter: drop-shadow(-10px 0 rgb(131, 131, 131)) blur(2px);
+  }
 }
 #left {
   grid-column: 1/2;
   grid-row: 2/3;
 }
+#left:active{
+  svg {
+    filter: drop-shadow(-10px 0 rgb(131, 131, 131)) blur(2px);
+  }
+}
 #center {
   grid-column: 2/3;
   grid-row: 2/3;
+  background: black;
+  height: 50px;
+  width: 50px;
+  margin: 10px;
 }
 #right {
   grid-column: 3/4;
   grid-row: 2/3;
+  transform: rotate(180deg);
+}
+#right:active{
+  svg {
+    filter: drop-shadow(-10px 0 rgb(131, 131, 131)) blur(2px);
+  }
 }
 #down {
   grid-column: 2/3;
   grid-row: 3/4;
+  transform: rotate(-90deg);
+}
+#down:active{
+  svg {
+    filter: drop-shadow(-10px 0 rgb(131, 131, 131)) blur(2px);
+  }
 }
 .CombatScreen {
   grid-column: 1/6;

@@ -30,9 +30,11 @@ class App extends Component {
         boss: {}
       },
       lastVisited: { coords: { x: 12, y: 12 }, tile: 0 },
-      score: 0
+      mazeLog: "Level 1",
+      combatLog: ""
     }
   }
+
   componentDidMount() {
     // function to get meme json data
     const getMemes = () => {
@@ -256,7 +258,8 @@ class App extends Component {
             up={this.up}
             down={this.down}
             left={this.left}
-            right={this.right} />
+            right={this.right}
+            mazeLog={this.state.mazeLog} />
         </div>
       )
       case 'combat': return (
@@ -269,6 +272,17 @@ class App extends Component {
       )
       default:
     }
+  }
+}
+function checkTile(tile, state) {
+  switch (tile) {
+    case "memes": return update(state, { $merge: { mazeLog: "FIGHT!" } })
+    case "weapons": return update(state, { $merge: { mazeLog: 'You found a weapon!' } })
+    case "heals": return update(state, { $merge: { mazeLog: 'You are healed!' } })
+    case "downstairs": return update(state, { $merge: { mazeLog: 'Stairs to level 2' } })
+    case "upstairs": return update(state, { $merge: { mazeLog: 'Stairs to level 0' } })
+    case "boss": return update(state, { $merge: { mazeLog: 'Over 9000!' } })
+    default: return update(state, { $merge: { mazeLog: `Level ${state.currentLevel}` } })
   }
 }
 // move north
@@ -285,7 +299,8 @@ function up(state) {
   const state3 = update(state2, { lastVisited: { $set: { coords: { x: lastX, y: lastY - 1 } } } })
   const state4 = update(state3, { lastVisited: { $merge: { tile: newTile } } })
   const newState = update(state4, { levels: { [state.currentLevel]: { [lastX]: { [lastY - 1]: { $set: "player" } } } } })
-  return newState
+  const finalState = checkTile(newTile, newState)
+  return finalState
 }
 // move south
 function down(state) {
@@ -301,7 +316,8 @@ function down(state) {
   const state3 = update(state2, { lastVisited: { $set: { coords: { x: lastX, y: lastY + 1 } } } })
   const state4 = update(state3, { lastVisited: { $merge: { tile: newTile } } })
   const newState = update(state4, { levels: { [state.currentLevel]: { [lastX]: { [lastY + 1]: { $set: "player" } } } } })
-  return newState
+  const finalState = checkTile(newTile, newState)
+  return finalState
 }
 // move west
 function left(state) {
@@ -317,7 +333,8 @@ function left(state) {
   const state3 = update(state2, { lastVisited: { $set: { coords: { x: lastX - 1, y: lastY } } } })
   const state4 = update(state3, { lastVisited: { $merge: { tile: newTile } } })
   const newState = update(state4, { levels: { [state.currentLevel]: { [lastX - 1]: { [lastY]: { $set: "player" } } } } })
-  return newState
+  const finalState = checkTile(newTile, newState)
+  return finalState
 }
 // move east
 function right(state) {
@@ -333,7 +350,8 @@ function right(state) {
   const state3 = update(state2, { lastVisited: { $set: { coords: { x: lastX + 1, y: lastY } } } })
   const state4 = update(state3, { lastVisited: { $merge: { tile: newTile } } })
   const newState = update(state4, { levels: { [state.currentLevel]: { [lastX + 1]: { [lastY]: { $set: "player" } } } } })
-  return newState
+  const finalState = checkTile(newTile, newState)
+  return finalState
 }
 // random number 0-99
 function randomMeme() {
@@ -423,8 +441,7 @@ class StartScreen extends Component {
     return (
       <div className="StartScreen">
         <h1 className="meme">MAZES AND MEMES</h1>
-        <h2 className="standard-text">Kill the memes and escape the maze...<span><br /></span>do you know de wey?</h2>
-        <em className="sub-text">(Please kill this meme already!)</em>
+        <h2 className="standard-text">Kill the memes and escape the maze!</h2>
         <br />
         <button id="start" onClick={switchScreen}>Start</button>
       </div>
@@ -435,7 +452,7 @@ class StartScreen extends Component {
 class MazeScreen extends Component {
   // player movement functions
   render() {
-    const { switchScreen, fog, things, levels, currentLevel, up, down, left, right } = this.props
+    const { switchScreen, fog, things, levels, currentLevel, up, down, left, right, mazeLog } = this.props
     const { player, memes, heals, weapons, upstairs, downstairs, boss } = things
     const maze = levels[currentLevel]
     let rows = [], tileClass, row;
@@ -480,13 +497,30 @@ class MazeScreen extends Component {
       <div className="MazeScreen">
         <div className="maze">
           {rows}
+          <h2>{mazeLog}</h2>
         </div>
         <div className="dPad-container">
-          <div id="up" onClick={up} className="dPad"><span>^</span></div>
-          <div id="left" onClick={left} className="dPad"><span>&lt;</span></div>
-          <div id="center" className="dPad" onClick={switchScreen}>Combat</div>
-          <div id="right" onClick={right} className="dPad"><span>&gt;</span></div>
-          <div id="down" onClick={down} className="dPad"><span>v</span></div>
+          <div id="up" onClick={up} className="dPad">
+            <svg viewBox="0 0 100 100">
+              <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
+            </svg>
+          </div>
+          <div id="left" onClick={left} className="dPad">
+            <svg viewBox="0 0 100 100">
+              <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
+            </svg>
+          </div>
+          <div id="center" className="dPad" onClick={switchScreen}></div>
+          <div id="right" onClick={right} className="dPad">
+            <svg viewBox="0 0 100 100">
+              <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
+            </svg>
+          </div>
+          <div id="down" onClick={down} className="dPad">
+            <svg viewBox="0 0 100 100">
+              <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
+            </svg>
+          </div>
         </div>
       </div>
     )
