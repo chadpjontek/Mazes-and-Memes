@@ -55,6 +55,9 @@
   grid-row: 1/4;
   animation: fallIn 3s;
   overflow: hidden;
+  h2 {
+    margin: 0px;
+  }
 }
 .memes {
   background-color: red;
