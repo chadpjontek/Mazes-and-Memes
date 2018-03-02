@@ -44,7 +44,7 @@
   grid-row: 1/6;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(5,1fr);
+  grid-template-rows: 2fr 50px 2fr;
   justify-items: center;
   align-items: center;
   overflow: hidden;
@@ -52,12 +52,9 @@
 .maze {
   z-index: 1;
   grid-column: 1/6;
-  grid-row: 1/4;
+  grid-row: 1/2;
   animation: fallIn 3s;
   overflow: hidden;
-  h2 {
-    margin: 0px;
-  }
 }
 .memes {
   background-color: red;
@@ -107,23 +104,26 @@
     width: 1em;
   }
 }
+.mazeMsg {
+  grid-column:1/6;
+  grid-row: 2/3;
+  max-width: 300px;
+  max-height: 100px;
+}
 .dPad-container {
   grid-column:1/6;
-  grid-row: 4/6;
+  grid-row: 3/4;
   display: grid;
   max-width: 300px;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3,1fr);
   grid-gap: 2px;
-  margin: auto;
+  margin: 0 auto 40px;
   svg {
     padding-left: 10px;
     display: flex;
 
   }
-}
-.dPad {
-  
 }
 #up {
   grid-column: 2/3;

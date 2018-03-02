@@ -278,12 +278,14 @@ class App extends Component {
 function checkTile(tile, state) {
   switch (tile) {
     case "memes": {
-      const newState = fightMeme(state)
-      return update(newState, { $merge: { mazeLog: "FIGHT!" } })
+      return fightMeme(state)
+      // return update(newState, { $merge: { mazeLog: "FIGHT!" } })
     }
     case "weapons": {
-      pickupWeapon()
-      return update(state, { $merge: { mazeLog: 'You found a weapon!' } })
+      const state1 = update(state, { $merge: { mazeLog: `You found a +${state.currentLevel} ${state.things.weapons[state.currentLevel].name}` } })
+      const state2 = update(state1, { things: {player: {$set: { damgMod: state.things.weapons[state.currentLevel].damgMod + state.things.player.damgMod}}}})
+      const newState = update(state2, {lastVisited: {$set: {tile: 0}}})
+      return newState
     }
     case "heals": {
       pickupHeal()
@@ -307,7 +309,7 @@ function checkTile(tile, state) {
 function fightMeme(state) {
   return update(state, { $merge: { currentScreen: 'combat' } })
 }
-function pickupWeapon() {
+function pickupWeapon(state) {
 
 }
 function pickupHeal() {
@@ -534,6 +536,8 @@ class MazeScreen extends Component {
       <div className="MazeScreen">
         <div className="maze">
           {rows}
+        </div>
+        <div className="mazeMsg">
           <h2>{mazeLog}</h2>
         </div>
         <div className="dPad-container">
@@ -572,8 +576,8 @@ class CombatScreen extends Component {
     const y = things.player.coords.y
     console.log(x)
     console.log(y)
-    console.log(things.memes[currentLevel-1])
-    const arr = things.memes[currentLevel-1].filter(obj => obj.coords.x === x && obj.coords.y === y)
+    console.log(things.memes[currentLevel - 1])
+    const arr = things.memes[currentLevel - 1].filter(obj => obj.coords.x === x && obj.coords.y === y)
     const meme = arr[0]
     console.log(meme)
     const memeLvl = `You encounter a level ${currentLevel}`
