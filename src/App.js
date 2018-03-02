@@ -88,7 +88,7 @@ class App extends Component {
     for (let lvl = 0; lvl < 5; lvl++) {
       for (let i = 0; i < 5; i++) {
         let randNum = randMeme.next().value
-        memes[lvl].push({ id: `l${lvl + 1}i${i}`, lvl: lvl + 1, hp: 30 * (lvl + 1), xp: 40 * (lvl + 1), damgMod: lvl + 1, url: memeJson[randNum].url, name: memeJson[randNum].name })
+        memes[lvl].push({ id: `l${lvl + 1}i${i}`, lvl: lvl + 1, hp: 30 * (lvl + 1), xp: 40 * (lvl + 1), damgMod: lvl + 1, url: memeJson[randNum].url, name: memeJson[randNum].name, width: memeJson[randNum].width, height: memeJson[randNum].height })
       }
     }
     // create 5 random weapons
@@ -222,7 +222,7 @@ class App extends Component {
         break
       case 'center': currentScreen = 'combat'
         break
-      default: currentScreen = 'start'
+      default: currentScreen = 'maze'
     }
     this.setState({
       currentScreen
@@ -267,6 +267,7 @@ class App extends Component {
           <CombatScreen switchScreen={this.switchScreen}
             memeJson={this.state.memeJson}
             currentLevel={this.state.currentLevel}
+            things={this.state.things}
           />
         </div>
       )
@@ -276,14 +277,50 @@ class App extends Component {
 }
 function checkTile(tile, state) {
   switch (tile) {
-    case "memes": return update(state, { $merge: { mazeLog: "FIGHT!" } })
-    case "weapons": return update(state, { $merge: { mazeLog: 'You found a weapon!' } })
-    case "heals": return update(state, { $merge: { mazeLog: 'You are healed!' } })
-    case "downstairs": return update(state, { $merge: { mazeLog: 'Stairs to level 2' } })
-    case "upstairs": return update(state, { $merge: { mazeLog: 'Stairs to level 0' } })
-    case "boss": return update(state, { $merge: { mazeLog: 'Over 9000!' } })
+    case "memes": {
+      const newState = fightMeme(state)
+      return update(newState, { $merge: { mazeLog: "FIGHT!" } })
+    }
+    case "weapons": {
+      pickupWeapon()
+      return update(state, { $merge: { mazeLog: 'You found a weapon!' } })
+    }
+    case "heals": {
+      pickupHeal()
+      return update(state, { $merge: { mazeLog: 'You are healed!' } })
+    }
+    case "downstairs": {
+      goDownstairs()
+      return update(state, { $merge: { mazeLog: 'Stairs to level 2' } })
+    }
+    case "upstairs": {
+      goUpstairs()
+      return update(state, { $merge: { mazeLog: 'Stairs to level 0' } })
+    }
+    case "boss": {
+      fightBoss()
+      return update(state, { $merge: { mazeLog: 'Over 9000!' } })
+    }
     default: return update(state, { $merge: { mazeLog: `Level ${state.currentLevel}` } })
   }
+}
+function fightMeme(state) {
+  return update(state, { $merge: { currentScreen: 'combat' } })
+}
+function pickupWeapon() {
+
+}
+function pickupHeal() {
+
+}
+function goDownstairs() {
+
+}
+function goUpstairs() {
+
+}
+function fightBoss() {
+
 }
 // move north
 function up(state) {
@@ -510,7 +547,7 @@ class MazeScreen extends Component {
               <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
             </svg>
           </div>
-          <div id="center" className="dPad" onClick={switchScreen}></div>
+          <div id="center" className="dPad"></div>
           <div id="right" onClick={right} className="dPad">
             <svg viewBox="0 0 100 100">
               <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
@@ -528,13 +565,17 @@ class MazeScreen extends Component {
 }
 
 class CombatScreen extends Component {
-  randomNumber = () => {
-    return Math.floor(Math.random() * this.props.weapons.length)
-  }
+
   render() {
-    const { switchScreen, memeJson, currentLevel } = this.props
-    // pick random meme
-    const meme = memeJson[randomMeme()]
+    const { switchScreen, things, currentLevel } = this.props
+    const x = things.player.coords.x
+    const y = things.player.coords.y
+    console.log(x)
+    console.log(y)
+    console.log(things.memes[currentLevel-1])
+    const arr = things.memes[currentLevel-1].filter(obj => obj.coords.x === x && obj.coords.y === y)
+    const meme = arr[0]
+    console.log(meme)
     const memeLvl = `You encounter a level ${currentLevel}`
     const memeName = `${meme.name}`
     const divStyle = {
