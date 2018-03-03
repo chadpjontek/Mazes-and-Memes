@@ -44,9 +44,9 @@
   grid-row: 1/6;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: 2fr 50px 2fr;
+  grid-template-rows: 1fr 70px 1fr;
   justify-items: center;
-  align-items: center;
+  align-items: start;
   overflow: hidden;
 }
 .maze {
@@ -110,12 +110,15 @@
   max-width: 300px;
   max-height: 100px;
 }
+.mazeMsg h2 {
+  margin: 0px;
+}
 .dPad-container {
   grid-column:1/6;
   grid-row: 3/4;
   display: grid;
   max-width: 300px;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 30px 75px 75px 75px 30px;
   grid-template-rows: repeat(3,1fr);
   grid-gap: 2px;
   margin: 0 auto 40px;
@@ -125,8 +128,35 @@
 
   }
 }
+.hpContainer {
+  grid-column: 1/2;
+  grid-row: 1/4;
+  
+  width: 22px;
+  background: lightgrey;
+  color: white;
+  padding: 5px;
+}
+.hpBar {
+  background: red;
+  font-size: .8em;
+}
+.xpContainer {
+  grid-column: 5/6;
+  grid-row: 1/4;
+  width: 22px;
+  background: lightgrey;
+  color: white;
+  padding: 5px;
+  align-items: center;
+  justify-items: center;
+}
+.xpBar {
+  background: blue;
+  font-size: .8em;
+}
 #up {
-  grid-column: 2/3;
+  grid-column: 3/4;
   grid-row: 1/2;
   transform: rotate(90deg);
 }
@@ -136,7 +166,7 @@
   }
 }
 #left {
-  grid-column: 1/2;
+  grid-column: 2/3;
   grid-row: 2/3;
 }
 #left:active{
@@ -145,15 +175,13 @@
   }
 }
 #center {
-  grid-column: 2/3;
+  grid-column: 3/4;
   grid-row: 2/3;
-  background: black;
-  height: 50px;
-  width: 50px;
-  margin: 10px;
+  
+
 }
 #right {
-  grid-column: 3/4;
+  grid-column: 4/5;
   grid-row: 2/3;
   transform: rotate(180deg);
 }
@@ -163,7 +191,7 @@
   }
 }
 #down {
-  grid-column: 2/3;
+  grid-column: 3/4;
   grid-row: 3/4;
   transform: rotate(-90deg);
 }

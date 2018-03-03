@@ -282,10 +282,10 @@ function checkTile(tile, state) {
       // return update(newState, { $merge: { mazeLog: "FIGHT!" } })
     }
     case "weapons": {
-      const damgMod = state.things.player.damgMod + state.things.weapons[state.currentLevel-1].damgMod
+      const damgMod = state.things.player.lvl + state.things.weapons[state.currentLevel - 1].damgMod
       const state1 = update(state, { $merge: { mazeLog: `You found a +${state.currentLevel} ${state.things.weapons[state.currentLevel].name}` } })
-      const state2 = update(state1, { things: {player: {$merge: { damgMod }}}})
-      const newState = update(state2, {lastVisited: {$merge: {tile: 0}}})
+      const state2 = update(state1, { things: { player: { $merge: { damgMod } } } })
+      const newState = update(state2, { lastVisited: { $merge: { tile: 0 } } })
       return newState
     }
     case "heals": {
@@ -495,6 +495,12 @@ class MazeScreen extends Component {
     const { switchScreen, fog, things, levels, currentLevel, up, down, left, right, mazeLog } = this.props
     const { player, memes, heals, weapons, upstairs, downstairs, boss } = things
     const maze = levels[currentLevel]
+    const hpStyle = {
+      height: things.player.hp + '%'
+    }
+   const xpStyle = {
+     height: things.player.xp + '%'
+   }
     let rows = [], tileClass, row;
     for (let y = 0; y < 25; y++) {
       row = [];
@@ -542,10 +548,18 @@ class MazeScreen extends Component {
           <h2>{mazeLog}</h2>
         </div>
         <div className="dPad-container">
+          <h3>HP</h3>
+        <div className="hpContainer">
+            <div className="hpBar" style={hpStyle}>{things.player.hp}</div>
+          </div>
           <div id="up" onClick={up} className="dPad">
             <svg viewBox="0 0 100 100">
               <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
             </svg>
+          </div>
+          <h3>XP</h3>
+          <div className="xpContainer">
+            <div className="xpBar" style={xpStyle}>{things.player.xp}</div>
           </div>
           <div id="left" onClick={left} className="dPad">
             <svg viewBox="0 0 100 100">
@@ -575,12 +589,8 @@ class CombatScreen extends Component {
     const { switchScreen, things, currentLevel } = this.props
     const x = things.player.coords.x
     const y = things.player.coords.y
-    console.log(x)
-    console.log(y)
-    console.log(things.memes[currentLevel - 1])
     const arr = things.memes[currentLevel - 1].filter(obj => obj.coords.x === x && obj.coords.y === y)
     const meme = arr[0]
-    console.log(meme)
     const memeLvl = `You encounter a level ${currentLevel}`
     const memeName = `${meme.name}`
     const divStyle = {
