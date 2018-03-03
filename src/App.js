@@ -282,9 +282,10 @@ function checkTile(tile, state) {
       // return update(newState, { $merge: { mazeLog: "FIGHT!" } })
     }
     case "weapons": {
+      const damgMod = state.things.player.damgMod + state.things.weapons[state.currentLevel-1].damgMod
       const state1 = update(state, { $merge: { mazeLog: `You found a +${state.currentLevel} ${state.things.weapons[state.currentLevel].name}` } })
-      const state2 = update(state1, { things: {player: {$set: { damgMod: state.things.weapons[state.currentLevel].damgMod + state.things.player.damgMod}}}})
-      const newState = update(state2, {lastVisited: {$set: {tile: 0}}})
+      const state2 = update(state1, { things: {player: {$merge: { damgMod }}}})
+      const newState = update(state2, {lastVisited: {$merge: {tile: 0}}})
       return newState
     }
     case "heals": {
