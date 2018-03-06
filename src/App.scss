@@ -131,15 +131,15 @@
 .hpContainer {
   grid-column: 1/2;
   grid-row: 1/4;
-  
   width: 22px;
   background: lightgrey;
   color: white;
   padding: 5px;
 }
 .hpBar {
-  background: red;
+  background: green;
   font-size: .8em;
+  color: white;
 }
 .xpContainer {
   grid-column: 5/6;
@@ -154,6 +154,7 @@
 .xpBar {
   background: blue;
   font-size: .8em;
+  color: white;
 }
 #up {
   grid-column: 3/4;
@@ -305,6 +306,35 @@
 .combat-log li {
   text-align: left;
   max-height: 200px;
+}
+.combatHpBars {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(2,1fr);
+}
+.memeHp {
+  grid-column: 1/2;
+  grid-row: 1/2;
+  width: 300px;
+  background: lightgrey;
+  color: black;
+  padding: 5px;
+  align-content: center;
+}
+.memeHpBar {
+  background: red;
+  font-size: .8em;
+  color: white;
+}
+.playerHp {
+  grid-column: 1/2;
+  grid-row: 2/3;
+  width: 300px;
+  background: lightgrey;
+  color: black;
+  padding: 5px;
+  align-items: center;
+  justify-items: center;
 }
 .combat {
  button {

@@ -313,16 +313,17 @@ const attack = (playerDamg, enemyDamg, memeInd) => (state) => {
 }
 function memeDead(state, playerHp, memeInd) {
   const state1 = update(state, { lastVisited: { $merge: { tile: 0 } } })
+  const state2 = update(state1, { things: { memes: { [state.currentLevel-1]: { [memeInd]: {$merge: {hp: 0}}}}}})
   const xp = state.things.player.xp + state.things.memes[state.currentLevel - 1][memeInd].xp
   const lvl = state.things.player.lvl
   if ((xp >= lvl * 100)) {
-    return levelUp(state1, xp, lvl)
+    return levelUp(state2, xp, lvl)
   }
-  const state2 = update(state1, { things: { player: { $merge: { hp: playerHp } } } })
-  const state3 = update(state2, { $merge: { hitMsg: "Victory!" } })
-  const state4 = update(state3, { things: { player: { $merge: { xp } } } })
+  const state3 = update(state2, { things: { player: { $merge: { hp: playerHp } } } })
+  const state4 = update(state3, { $merge: { hitMsg: "Victory!" } })
+  const state5 = update(state4, { things: { player: { $merge: { xp } } } })
   // const state5 = update(state4, {$merge: {currentScreen: "maze"}})
-  return state4
+  return state5
 }
 function levelUp(state, xp, lvl) {
   const newXp = xp - lvl * 100
@@ -660,6 +661,12 @@ class CombatScreen extends Component {
       width: `${meme.width}px`,
       height: `${meme.height}px`
     };
+    const memeHpStyle = {
+      width: (((currentLevel * 30) - (currentLevel * 30 - meme.hp)) / currentLevel) * 3.33 + '%'
+    }
+    const playerHpStyle = {
+      width: ((things.player.lvl * 100) - (things.player.lvl * 100 - things.player.hp)) / things.player.lvl + '%'
+    }
     return (
       <div className="CombatScreen">
         <div id="meme" style={divStyle}>
@@ -671,6 +678,16 @@ class CombatScreen extends Component {
             <li id="li0">{attackMsg}</li>
             <li id="li1">{hitMsg}</li>
           </ul>
+        </div>
+        <div className="combatHpBars">
+          <div className="memeHp">
+            <div>Meme's HP</div>
+            <div className="memeHpBar" style={memeHpStyle}>{meme.hp}</div>
+          </div>
+          <div className="playerHp">
+          <div>Your HP</div>
+            <div className="hpBar" style={playerHpStyle}>{things.player.hp}</div>
+          </div>
         </div>
         <div className="combat">
           <button id="attak" onClick={attack}>Attack</button>
