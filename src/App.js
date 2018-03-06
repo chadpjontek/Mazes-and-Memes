@@ -327,7 +327,7 @@ function memeDead(state, playerHp, memeInd) {
 }
 function levelUp(state, xp, lvl) {
   const newXp = xp - lvl * 100
-  const state1 = update(state, { $merge: { hitMsg: `You are now level ${lvl + 1}` } })
+  const state1 = update(state, { $merge: { hitMsg: `You are now level ${lvl + 1}!` } })
   const state2 = update(state1, { things: { player: { $merge: { xp: newXp } } } })
   const state3 = update(state2, { things: { player: { $merge: { lvl: lvl + 1 } } } })
   const state4 = update(state3, { things: { player: { $merge: { damgMod: state.things.player.damgMod + 1 } } } })
