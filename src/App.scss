@@ -159,6 +159,7 @@
   grid-column: 3/4;
   grid-row: 1/2;
   transform: rotate(90deg);
+  border: 8px solid black;
 }
 #up:active{
   svg {
@@ -168,6 +169,7 @@
 #left {
   grid-column: 2/3;
   grid-row: 2/3;
+  border: 8px solid black;
 }
 #left:active{
   svg {
@@ -184,6 +186,7 @@
   grid-column: 4/5;
   grid-row: 2/3;
   transform: rotate(180deg);
+  border: 8px solid black;
 }
 #right:active{
   svg {
@@ -194,6 +197,7 @@
   grid-column: 3/4;
   grid-row: 3/4;
   transform: rotate(-90deg);
+  border: 8px solid black;
 }
 #down:active{
   svg {

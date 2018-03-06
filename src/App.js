@@ -31,7 +31,9 @@ class App extends Component {
       },
       lastVisited: { coords: { x: 12, y: 12 }, tile: 0 },
       mazeLog: "Level 1",
-      combatLog: ""
+      combatLog: "",
+      attackMsg: "",
+      hitMsg: ""
     }
   }
 
@@ -229,7 +231,7 @@ class App extends Component {
     })
   }
   up = () => {
-    this.setState(up(this.state))
+    this.setState(up)
   }
   down = () => {
     this.setState(down(this.state))
@@ -240,12 +242,26 @@ class App extends Component {
   right = () => {
     this.setState(right(this.state))
   }
+  //handle attack outcome
+  attack = () => {
+    const { things, currentLevel } = this.state
+    const playerDamg = Math.floor(attkRand() * things.player.damgMod)
+    const memeInd = things.memes[currentLevel - 1].findIndex(e => e.coords.x === things.player.coords.x && e.coords.y === things.player.coords.y)
+    const enemyDamg = attkRand() * things.memes[currentLevel - 1][memeInd].damgMod
+    this.setState(combatMsg(playerDamg, enemyDamg))
+    this.setState(attack(playerDamg, enemyDamg, memeInd))
+  }
   render() {
     // render the current screen
     switch (this.state.currentScreen) {
       case 'start': return (
         <div className="App">
           <StartScreen switchScreen={this.switchScreen} />
+        </div>
+      )
+      case 'gameOver': return (
+        <div className="App">
+          <GameOverScreen switchScreen={this.switchScreen} />
         </div>
       )
       case 'maze': return (
@@ -268,6 +284,9 @@ class App extends Component {
             memeJson={this.state.memeJson}
             currentLevel={this.state.currentLevel}
             things={this.state.things}
+            attack={this.attack}
+            attackMsg={this.state.attackMsg}
+            hitMsg={this.state.hitMsg}
           />
         </div>
       )
@@ -275,11 +294,61 @@ class App extends Component {
     }
   }
 }
+const combatMsg = (playerDamg, enemyDamg) => (state) => {
+  const state1 = update(state, { $merge: { attackMsg: `You deal ${playerDamg} damage` } })
+  return update(state1, { $merge: { hitMsg: `You take ${enemyDamg} damage` } })
+}
+const attack = (playerDamg, enemyDamg, memeInd) => (state) => {
+  const playerHp = damgResult(state.things.player.hp, enemyDamg)
+  const enemyHp = damgResult(state.things.memes[state.currentLevel - 1][memeInd].hp, playerDamg)
+  if (playerHp === 0) {
+    return playerDead(state)
+  } else if (enemyHp === 0) {
+    return memeDead(state, playerHp, memeInd)
+  } else {
+    const state1 = update(state, { things: { player: { $merge: { hp: playerHp } } } })
+    const finalState = update(state1, { things: { memes: { [state.currentLevel - 1]: { [memeInd]: { $merge: { hp: enemyHp } } } } } })
+    return finalState
+  }
+}
+function memeDead(state, playerHp, memeInd) {
+  const state1 = update(state, { lastVisited: { $merge: { tile: 0 } } })
+  const xp = state.things.player.xp + state.things.memes[state.currentLevel - 1][memeInd].xp
+  const lvl = state.things.player.lvl
+  if ((xp >= lvl * 100)) {
+    return levelUp(state1, xp, lvl)
+  }
+  const state2 = update(state1, { things: { player: { $merge: { hp: playerHp } } } })
+  const state3 = update(state2, { $merge: { hitMsg: "Victory!" } })
+  const state4 = update(state3, { things: { player: { $merge: { xp } } } })
+  // const state5 = update(state4, {$merge: {currentScreen: "maze"}})
+  return state4
+}
+function levelUp(state, xp, lvl) {
+  const newXp = xp - lvl * 100
+  const state1 = update(state, { $merge: { hitMsg: `You are now level ${lvl + 1}` } })
+  const state2 = update(state1, { things: { player: { $merge: { xp: newXp } } } })
+  const state3 = update(state2, { things: { player: { $merge: { lvl: lvl + 1 } } } })
+  const state4 = update(state3, { things: { player: { $merge: { damgMod: state.things.player.damgMod + 1 } } } })
+  const state5 = update(state4, { things: { player: { $merge: { hp: (lvl + 1) * 100 } } } })
+  // const state5 = update(state4, {$merge: {currentScreen: "maze"}})
+  return state5
+}
+function playerDead(state) {
+  return update(state, { $merge: { currentScreen: "gameOver" } })
+}
+function damgResult(hp, damg) {
+  if (hp > damg) {
+    return hp - damg
+  } else
+    return 0
+}
 function checkTile(tile, state) {
   switch (tile) {
     case "memes": {
-      return fightMeme(state)
-      // return update(newState, { $merge: { mazeLog: "FIGHT!" } })
+      const state1 = update(state, { $merge: { attackMsg: "" } })
+      const state2 = update(state1, { $merge: { hitMsg: "" } })
+      return update(state2, { $merge: { currentScreen: 'combat' } })
     }
     case "weapons": {
       const damgMod = state.things.player.lvl + state.things.weapons[state.currentLevel - 1].damgMod
@@ -288,42 +357,21 @@ function checkTile(tile, state) {
       const newState = update(state2, { lastVisited: { $merge: { tile: 0 } } })
       return newState
     }
+    // TODO: handle these
     case "heals": {
-      pickupHeal()
       return update(state, { $merge: { mazeLog: 'You are healed!' } })
     }
     case "downstairs": {
-      goDownstairs()
       return update(state, { $merge: { mazeLog: 'Stairs to level 2' } })
     }
     case "upstairs": {
-      goUpstairs()
       return update(state, { $merge: { mazeLog: 'Stairs to level 0' } })
     }
     case "boss": {
-      fightBoss()
       return update(state, { $merge: { mazeLog: 'Over 9000!' } })
     }
     default: return update(state, { $merge: { mazeLog: `Level ${state.currentLevel}` } })
   }
-}
-function fightMeme(state) {
-  return update(state, { $merge: { currentScreen: 'combat' } })
-}
-function pickupWeapon(state) {
-
-}
-function pickupHeal() {
-
-}
-function goDownstairs() {
-
-}
-function goUpstairs() {
-
-}
-function fightBoss() {
-
 }
 // move north
 function up(state) {
@@ -393,9 +441,9 @@ function right(state) {
   const finalState = checkTile(newTile, newState)
   return finalState
 }
-// random number 0-99
-function randomMeme() {
-  return Math.floor(Math.random() * 99 + 1)
+// random number 5-10
+function attkRand() {
+  return Math.floor(Math.random() * 6 + 5)
 }
 // function to generate random maze - iterations(optional) is number of times to 'dig'
 // 0 = tunnel / 1 = wall
@@ -489,6 +537,20 @@ class StartScreen extends Component {
   }
 }
 
+class GameOverScreen extends Component {
+  render() {
+    const { switchScreen } = this.props
+    return (
+      <div className="StartScreen">
+        <h1 className="meme">YOU DIED</h1>
+        <h2 className="standard-text">Game Over - Try again</h2>
+        <br />
+        <button id="start" onClick={switchScreen}>Start</button>
+      </div>
+    )
+  }
+}
+
 class MazeScreen extends Component {
   // player movement functions
   render() {
@@ -496,11 +558,11 @@ class MazeScreen extends Component {
     const { player, memes, heals, weapons, upstairs, downstairs, boss } = things
     const maze = levels[currentLevel]
     const hpStyle = {
-      height: things.player.hp + '%'
+      height: ((things.player.lvl * 100) - (things.player.lvl * 100 - things.player.hp)) / things.player.lvl + '%'
     }
-   const xpStyle = {
-     height: things.player.xp + '%'
-   }
+    const xpStyle = {
+      height: ((things.player.lvl * 100) - (things.player.lvl * 100 - things.player.xp)) / things.player.lvl + '%'
+    }
     let rows = [], tileClass, row;
     for (let y = 0; y < 25; y++) {
       row = [];
@@ -549,7 +611,7 @@ class MazeScreen extends Component {
         </div>
         <div className="dPad-container">
           <h3>HP</h3>
-        <div className="hpContainer">
+          <div className="hpContainer">
             <div className="hpBar" style={hpStyle}>{things.player.hp}</div>
           </div>
           <div id="up" onClick={up} className="dPad">
@@ -586,7 +648,7 @@ class MazeScreen extends Component {
 class CombatScreen extends Component {
 
   render() {
-    const { switchScreen, things, currentLevel } = this.props
+    const { switchScreen, things, currentLevel, attack, attackMsg, hitMsg } = this.props
     const x = things.player.coords.x
     const y = things.player.coords.y
     const arr = things.memes[currentLevel - 1].filter(obj => obj.coords.x === x && obj.coords.y === y)
@@ -606,12 +668,12 @@ class CombatScreen extends Component {
         </div>
         <div className="combat-log">
           <ul>
-            <li id="li0">You hit </li>
-            <li id="li1">You get hit </li>
+            <li id="li0">{attackMsg}</li>
+            <li id="li1">{hitMsg}</li>
           </ul>
         </div>
         <div className="combat">
-          <button id="combat" onClick={switchScreen}>Attack</button>
+          <button id="attak" onClick={attack}>Attack</button>
           <button id="run" onClick={switchScreen}>Run</button>
         </div>
       </div>
