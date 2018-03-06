@@ -9,12 +9,13 @@ Mazes and Memes is a *roguelike* dungeon crawler that aims to bring the theme of
 - Rendering the 1st level
 - Player movement
 - Basic interaction
+- Handle combat
 
 **TODO:**
 - Handle interactions
-- Handle combat
 - Add boss mechanics
 - Add win/lose conditions and handle
+- Add music/sound/graphics
 
 Current playable version: 
 https://github.com/chadpjontek/Mazes-and-Memes

@@ -242,6 +242,13 @@ class App extends Component {
   right = () => {
     this.setState(right(this.state))
   }
+  // handle run outcome
+  run = () => {
+    const { things, currentLevel } = this.state
+    const memeInd = things.memes[currentLevel - 1].findIndex(e => e.coords.x === things.player.coords.x && e.coords.y === things.player.coords.y)
+    const enemyDamg = attkRand() * things.memes[currentLevel - 1][memeInd].damgMod
+    this.setState(run(enemyDamg, memeInd))
+  }
   //handle attack outcome
   attack = () => {
     const { things, currentLevel } = this.state
@@ -285,6 +292,7 @@ class App extends Component {
             currentLevel={this.state.currentLevel}
             things={this.state.things}
             attack={this.attack}
+            run={this.run}
             attackMsg={this.state.attackMsg}
             hitMsg={this.state.hitMsg}
           />
@@ -293,6 +301,17 @@ class App extends Component {
       default:
     }
   }
+}
+const run = (enemyDamg, memeInd) => (state) => {
+  const playerHp = damgResult(state.things.player.hp, enemyDamg)
+  if (playerHp === 0) {
+    return playerDead(state)
+  }
+  const state1 = update(state, { $merge: { attackMsg: `You escape with your life!` } })
+  const state2 = update(state1, { $merge: { hitMsg: `You take ${enemyDamg} damage` } })
+  const state3 = update(state2, { things: { player: { $merge: { hp: playerHp } } } })
+  const state4 = update(state3, {$merge: {currentScreen: "maze"}})
+  return state4
 }
 const combatMsg = (playerDamg, enemyDamg) => (state) => {
   const state1 = update(state, { $merge: { attackMsg: `You deal ${playerDamg} damage` } })
@@ -322,8 +341,8 @@ function memeDead(state, playerHp, memeInd) {
   const state3 = update(state2, { things: { player: { $merge: { hp: playerHp } } } })
   const state4 = update(state3, { $merge: { hitMsg: "Victory!" } })
   const state5 = update(state4, { things: { player: { $merge: { xp } } } })
-  // const state5 = update(state4, {$merge: {currentScreen: "maze"}})
-  return state5
+  const state6 = update(state5, {$merge: {currentScreen: "maze"}})
+  return state6
 }
 function levelUp(state, xp, lvl) {
   const newXp = xp - lvl * 100
@@ -332,8 +351,8 @@ function levelUp(state, xp, lvl) {
   const state3 = update(state2, { things: { player: { $merge: { lvl: lvl + 1 } } } })
   const state4 = update(state3, { things: { player: { $merge: { damgMod: state.things.player.damgMod + 1 } } } })
   const state5 = update(state4, { things: { player: { $merge: { hp: (lvl + 1) * 100 } } } })
-  // const state5 = update(state4, {$merge: {currentScreen: "maze"}})
-  return state5
+  const state6 = update(state5, {$merge: {currentScreen: "maze"}})
+  return state6
 }
 function playerDead(state) {
   return update(state, { $merge: { currentScreen: "gameOver" } })
@@ -649,7 +668,7 @@ class MazeScreen extends Component {
 class CombatScreen extends Component {
 
   render() {
-    const { switchScreen, things, currentLevel, attack, attackMsg, hitMsg } = this.props
+    const { switchScreen, things, currentLevel, attack, attackMsg, hitMsg, run } = this.props
     const x = things.player.coords.x
     const y = things.player.coords.y
     const arr = things.memes[currentLevel - 1].filter(obj => obj.coords.x === x && obj.coords.y === y)
@@ -691,7 +710,7 @@ class CombatScreen extends Component {
         </div>
         <div className="combat">
           <button id="attak" onClick={attack}>Attack</button>
-          <button id="run" onClick={switchScreen}>Run</button>
+          <button id="run" onClick={run}>Run</button>
         </div>
       </div>
     )
