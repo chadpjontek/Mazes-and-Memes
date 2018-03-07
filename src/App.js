@@ -31,7 +31,6 @@ class App extends Component {
       },
       lastVisited: { coords: { x: 12, y: 12 }, tile: 0 },
       mazeLog: "Level 1",
-      combatLog: "",
       attackMsg: "",
       hitMsg: ""
     }
@@ -183,8 +182,12 @@ class App extends Component {
       downstairs: downstairs,
       boss: boss
     }
+    const mazeLog = "Level 1"
+    const attackMsg = ""
+    const hitMsg = ""
+    const currentLevel = 1
     // update state with things
-    this.setState({ things, levels, lastVisited })
+    this.setState({ things, levels, lastVisited, mazeLog, hitMsg, currentLevel})
   }
   // finds tunnel space with nothing in it
   getEmpty = (curThings, level, things) => {
@@ -309,7 +312,7 @@ const run = (enemyDamg, memeInd) => (state) => {
   }
   const state1 = update(state, { $merge: { mazeLog: `You escape with your life!` } })
   const state2 = update(state1, { things: { player: { $merge: { hp: playerHp } } } })
-  const state3 = update(state2, {$merge: {currentScreen: "maze"}})
+  const state3 = update(state2, { $merge: { currentScreen: "maze" } })
   return state3
 }
 const combatMsg = (playerDamg, enemyDamg) => (state) => {
@@ -331,7 +334,7 @@ const attack = (playerDamg, enemyDamg, memeInd) => (state) => {
 }
 function memeDead(state, playerHp, memeInd) {
   const state1 = update(state, { lastVisited: { $merge: { tile: 0 } } })
-  const state2 = update(state1, { things: { memes: { [state.currentLevel-1]: { [memeInd]: {$merge: {hp: 0}}}}}})
+  const state2 = update(state1, { things: { memes: { [state.currentLevel - 1]: { [memeInd]: { $merge: { hp: 0 } } } } } })
   const xp = state.things.player.xp + state.things.memes[state.currentLevel - 1][memeInd].xp
   const lvl = state.things.player.lvl
   if ((xp >= lvl * 100)) {
@@ -340,7 +343,7 @@ function memeDead(state, playerHp, memeInd) {
   const state3 = update(state2, { things: { player: { $merge: { hp: playerHp } } } })
   const state4 = update(state3, { $merge: { mazeLog: "Victory!" } })
   const state5 = update(state4, { things: { player: { $merge: { xp } } } })
-  const state6 = update(state5, {$merge: {currentScreen: "maze"}})
+  const state6 = update(state5, { $merge: { currentScreen: "maze" } })
   return state6
 }
 function levelUp(state, xp, lvl) {
@@ -350,10 +353,12 @@ function levelUp(state, xp, lvl) {
   const state3 = update(state2, { things: { player: { $merge: { lvl: lvl + 1 } } } })
   const state4 = update(state3, { things: { player: { $merge: { damgMod: state.things.player.damgMod + 1 } } } })
   const state5 = update(state4, { things: { player: { $merge: { hp: (lvl + 1) * 100 } } } })
-  const state6 = update(state5, {$merge: {currentScreen: "maze"}})
+  const state6 = update(state5, { $merge: { currentScreen: "maze" } })
   return state6
 }
 function playerDead(state) {
+  // const state1 = update(state, {$merge:{currentLevel: 1}})
+  // const state2 = update(state1, { $merge: { mazeLog: 'You are healed!' } })
   return update(state, { $merge: { currentScreen: "gameOver" } })
 }
 function damgResult(hp, damg) {
@@ -371,22 +376,46 @@ function checkTile(tile, state) {
     }
     case "weapons": {
       const damgMod = state.things.player.lvl + state.things.weapons[state.currentLevel - 1].damgMod
-      const state1 = update(state, { $merge: { mazeLog: `You found a +${state.currentLevel} ${state.things.weapons[state.currentLevel].name}` } })
+      const state1 = update(state, { $merge: { mazeLog: `You found a +${state.currentLevel} ${state.things.weapons[state.currentLevel-1].name}` } })
       const state2 = update(state1, { things: { player: { $merge: { damgMod } } } })
       const newState = update(state2, { lastVisited: { $merge: { tile: 0 } } })
       return newState
     }
     // TODO: handle these
     case "heals": {
-      const state1 = update(state, {things: {player:{$merge:{hp: state.things.player.lvl * 100}}}})
+      const state1 = update(state, { things: { player: { $merge: { hp: state.things.player.lvl * 100 } } } })
       const state2 = update(state1, { lastVisited: { $merge: { tile: 0 } } })
       return update(state2, { $merge: { mazeLog: 'You are healed!' } })
     }
     case "downstairs": {
-      return update(state, { $merge: { mazeLog: 'Stairs to level 2' } })
+      const upstairCoords = state.things.upstairs[state.currentLevel - 1]
+      const upX = upstairCoords.x
+      const upY = upstairCoords.y
+      const downstairCoords = state.things.downstairs[state.currentLevel - 1]
+      const downX = downstairCoords.x
+      const downY = downstairCoords.y
+      const state1 = update(state, { $merge: { currentLevel: state.currentLevel + 1 } })
+      const state2 = update(state1, { things: { player: { $merge: { coords: upstairCoords } } } })
+      const state3 = update(state2, { levels: { [state.currentLevel]: { [downX]: { $merge: { [downY]: 'downstairs' } } } } })
+      const state4 = update(state3, { levels: { [state.currentLevel + 1]: { [upX]: { $merge: { [upY]: 'player' } } } } })
+      const state5 = update(state4, { lastVisited: { $merge: { tile: 'upstairs' } } })
+      const state6 = update(state5, { lastVisited: { $merge: { coords: upstairCoords } } })
+      return update(state6, { $merge: { mazeLog: `You've decended to level ${state.currentLevel + 1}` } })
     }
     case "upstairs": {
-      return update(state, { $merge: { mazeLog: 'Stairs to level 0' } })
+      const upstairCoords = state.things.upstairs[state.currentLevel - 2]
+      const upX = upstairCoords.x
+      const upY = upstairCoords.y
+      const downstairCoords = state.things.downstairs[state.currentLevel - 2]
+      const downX = downstairCoords.x
+      const downY = downstairCoords.y
+      const state1 = update(state, { $merge: { currentLevel: state.currentLevel - 1 } })
+      const state2 = update(state1, { things: { player: { $merge: { coords: downstairCoords } } } })
+      const state3 = update(state2, { levels: { [state.currentLevel]: { [upX]: { $merge: { [upY]: 'upstairs' } } } } })
+      const state4 = update(state3, { levels: { [state.currentLevel - 1]: { [downX]: { $merge: { [downY]: 'player' } } } } })
+      const state5 = update(state4, { lastVisited: { $merge: { tile: 'downstairs' } } })
+      const state6 = update(state5, { lastVisited: { $merge: { coords: downstairCoords } } })
+      return update(state6, { $merge: { mazeLog: `You've ascended to level ${state.currentLevel - 1}` } })
     }
     case "boss": {
       return update(state, { $merge: { mazeLog: 'Over 9000!' } })
@@ -705,7 +734,7 @@ class CombatScreen extends Component {
             <div className="memeHpBar" style={memeHpStyle}>{meme.hp}</div>
           </div>
           <div className="playerHp">
-          <div>Your HP</div>
+            <div>Your HP</div>
             <div className="hpBar" style={playerHpStyle}>{things.player.hp}</div>
           </div>
         </div>
