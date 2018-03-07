@@ -378,7 +378,9 @@ function checkTile(tile, state) {
     }
     // TODO: handle these
     case "heals": {
-      return update(state, { $merge: { mazeLog: 'You are healed!' } })
+      const state1 = update(state, {things: {player:{$merge:{hp: state.things.player.lvl * 100}}}})
+      const state2 = update(state1, { lastVisited: { $merge: { tile: 0 } } })
+      return update(state2, { $merge: { mazeLog: 'You are healed!' } })
     }
     case "downstairs": {
       return update(state, { $merge: { mazeLog: 'Stairs to level 2' } })
