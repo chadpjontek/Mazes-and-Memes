@@ -32,7 +32,8 @@ class App extends Component {
       lastVisited: { coords: { x: 12, y: 12 }, tile: 0 },
       mazeLog: "Level 1",
       attackMsg: "",
-      hitMsg: ""
+      hitMsg: "",
+      isBoss: false
     }
   }
 
@@ -81,7 +82,7 @@ class App extends Component {
   populateLevels = () => {
     const { memeJson } = this.state
     let levels = this.generateMazes()
-    let memes = [[], [], [], [], []], heals = [[{}, {}], [{}, {}], [{}, {}], [{}, {}], [{}, {}]], weapons = [], player, boss, upstairs = [], downstairs = []
+    let memes = [[], [], [], [], []], heals = [[{}, {}], [{}, {}], [{}, {}], [{}, {}], [{}, {}]], weapons = [], player, boss = [[], [], [], [], []], upstairs = [], downstairs = []
     // variable to hold coords for each level
     let thingCoords = []
     // create 5 sets of 5 random memes
@@ -117,7 +118,7 @@ class App extends Component {
         let packedBossCoord = this.getEmpty(thingCoords, levels[l])
         let bossCoord = packedBossCoord[0]
         thingCoords.push(bossCoord)
-        boss = { coords: bossCoord, lvl: 6, hp: 180, xp: 9001, damgMod: 3 }
+        boss[4][0] = { coords: bossCoord, lvl: 6, hp: 180, xp: 0, damgMod: 3, name: "Over 9000!", url: '/over9000.jpg', width: 640, height: 480 }
       } else {
         let packedDownstairsCoord = this.getEmpty(thingCoords, levels[l])
         let downstairsCoord = packedDownstairsCoord[0]
@@ -146,7 +147,7 @@ class App extends Component {
     }
     // add things to levels
     levels[1][player.coords.x][player.coords.y] = 'player'
-    levels[5][boss.coords.x][boss.coords.y] = 'boss'
+    levels[5][boss[4][0].coords.x][boss[4][0].coords.y] = 'boss'
     for (let i = 0; i < weapons.length; i++) {
       levels[i + 1][weapons[i].coords.x][weapons[i].coords.y] = 'weapons'
     }
@@ -187,7 +188,7 @@ class App extends Component {
     const hitMsg = ""
     const currentLevel = 1
     // update state with things
-    this.setState({ things, levels, lastVisited, mazeLog, hitMsg, currentLevel})
+    this.setState({ things, levels, lastVisited, mazeLog, hitMsg, currentLevel })
   }
   // finds tunnel space with nothing in it
   getEmpty = (curThings, level, things) => {
@@ -227,6 +228,8 @@ class App extends Component {
         break
       case 'center': currentScreen = 'combat'
         break
+      case 'winGame': currentScreen = 'winGame'
+        break
       default: currentScreen = 'maze'
     }
     this.setState({
@@ -254,10 +257,10 @@ class App extends Component {
   }
   //handle attack outcome
   attack = () => {
-    const { things, currentLevel } = this.state
+    const { isBoss, things, currentLevel } = this.state
     const playerDamg = Math.floor(attkRand() * things.player.damgMod)
-    const memeInd = things.memes[currentLevel - 1].findIndex(e => e.coords.x === things.player.coords.x && e.coords.y === things.player.coords.y)
-    const enemyDamg = attkRand() * things.memes[currentLevel - 1][memeInd].damgMod
+    const memeInd = isBoss ? 0 : things.memes[currentLevel - 1].findIndex(e => e.coords.x === things.player.coords.x && e.coords.y === things.player.coords.y)
+    const enemyDamg = isBoss ? attkRand() * things.boss[currentLevel - 1][memeInd].damgMod : attkRand() * things.memes[currentLevel - 1][memeInd].damgMod
     this.setState(combatMsg(playerDamg, enemyDamg))
     this.setState(attack(playerDamg, enemyDamg, memeInd))
   }
@@ -272,6 +275,11 @@ class App extends Component {
       case 'gameOver': return (
         <div className="App">
           <GameOverScreen switchScreen={this.switchScreen} />
+        </div>
+      )
+      case 'winGame': return (
+        <div className="App">
+          <WinGame switchScreen={this.switchScreen} />
         </div>
       )
       case 'maze': return (
@@ -298,6 +306,7 @@ class App extends Component {
             run={this.run}
             attackMsg={this.state.attackMsg}
             hitMsg={this.state.hitMsg}
+            isBoss={this.state.isBoss}
           />
         </div>
       )
@@ -321,14 +330,17 @@ const combatMsg = (playerDamg, enemyDamg) => (state) => {
 }
 const attack = (playerDamg, enemyDamg, memeInd) => (state) => {
   const playerHp = damgResult(state.things.player.hp, enemyDamg)
-  const enemyHp = damgResult(state.things.memes[state.currentLevel - 1][memeInd].hp, playerDamg)
+  const enemyHp = state.isBoss ? damgResult(state.things.boss[state.currentLevel - 1][memeInd].hp, playerDamg) : damgResult(state.things.memes[state.currentLevel - 1][memeInd].hp, playerDamg)
   if (playerHp === 0) {
     return playerDead(state)
   } else if (enemyHp === 0) {
+    if (state.isBoss) {
+      return winGame(state)
+    }
     return memeDead(state, playerHp, memeInd)
   } else {
     const state1 = update(state, { things: { player: { $merge: { hp: playerHp } } } })
-    const finalState = update(state1, { things: { memes: { [state.currentLevel - 1]: { [memeInd]: { $merge: { hp: enemyHp } } } } } })
+    const finalState = state.isBoss ? update(state1, { things: { boss: { [state.currentLevel - 1]: { [memeInd]: { $merge: { hp: enemyHp } } } } } }) : update(state1, { things: { memes: { [state.currentLevel - 1]: { [memeInd]: { $merge: { hp: enemyHp } } } } } })
     return finalState
   }
 }
@@ -357,9 +369,10 @@ function levelUp(state, xp, lvl) {
   return state6
 }
 function playerDead(state) {
-  // const state1 = update(state, {$merge:{currentLevel: 1}})
-  // const state2 = update(state1, { $merge: { mazeLog: 'You are healed!' } })
   return update(state, { $merge: { currentScreen: "gameOver" } })
+}
+function winGame(state) {
+  return update(state, { $merge: { currentScreen: "winGame" } })
 }
 function damgResult(hp, damg) {
   if (hp > damg) {
@@ -376,7 +389,7 @@ function checkTile(tile, state) {
     }
     case "weapons": {
       const damgMod = state.things.player.lvl + state.things.weapons[state.currentLevel - 1].damgMod
-      const state1 = update(state, { $merge: { mazeLog: `You found a +${state.currentLevel} ${state.things.weapons[state.currentLevel-1].name}` } })
+      const state1 = update(state, { $merge: { mazeLog: `You found a +${state.currentLevel} ${state.things.weapons[state.currentLevel - 1].name}` } })
       const state2 = update(state1, { things: { player: { $merge: { damgMod } } } })
       const newState = update(state2, { lastVisited: { $merge: { tile: 0 } } })
       return newState
@@ -418,7 +431,10 @@ function checkTile(tile, state) {
       return update(state6, { $merge: { mazeLog: `You've ascended to level ${state.currentLevel - 1}` } })
     }
     case "boss": {
-      return update(state, { $merge: { mazeLog: 'Over 9000!' } })
+      const state1 = update(state, { $merge: { attackMsg: "" } })
+      const state2 = update(state1, { $merge: { hitMsg: "" } })
+      const state3 = update(state2, { $merge: { isBoss: true } })
+      return update(state3, { $merge: { currentScreen: 'combat' } })
     }
     default: return update(state, { $merge: { mazeLog: `Level ${state.currentLevel}` } })
   }
@@ -601,6 +617,22 @@ class GameOverScreen extends Component {
   }
 }
 
+class WinGame extends Component {
+  render() {
+    const { switchScreen } = this.props
+    return (
+      <div className="StartScreen">
+        <h1 className="meme">YOU ESCAPE THE MAZE!</h1>
+        <h2 className="standard-text">It's time to collect your reward!</h2>
+        <br />
+        <form action="https://youtu.be/oHg5SJYRHA0">
+          <input type="submit" value="Collect!" />
+        </form>
+      </div>
+    )
+  }
+}
+
 class MazeScreen extends Component {
   // player movement functions
   render() {
@@ -698,21 +730,24 @@ class MazeScreen extends Component {
 class CombatScreen extends Component {
 
   render() {
-    const { switchScreen, things, currentLevel, attack, attackMsg, hitMsg, run } = this.props
+    const { switchScreen, things, currentLevel, attack, attackMsg, hitMsg, run, isBoss } = this.props
     const x = things.player.coords.x
     const y = things.player.coords.y
-    const arr = things.memes[currentLevel - 1].filter(obj => obj.coords.x === x && obj.coords.y === y)
+    const arr = isBoss ? things.boss[currentLevel - 1].filter(obj => obj.coords.x === x && obj.coords.y === y) : things.memes[currentLevel - 1].filter(obj => obj.coords.x === x && obj.coords.y === y)
     const meme = arr[0]
-    const memeLvl = `You encounter a level ${currentLevel}`
-    const memeName = `${meme.name}`
+    const memeLvl = isBoss ? `It's...` : `You encounter a level ${currentLevel}`
+    const memeName = isBoss ? `Over 9000!` : `${meme.name}`
     const divStyle = {
       backgroundImage: `url(${meme.url})`,
       width: `${meme.width}px`,
       height: `${meme.height}px`
     };
-    const memeHpStyle = {
-      width: (((currentLevel * 30) - (currentLevel * 30 - meme.hp)) / currentLevel) * 3.33 + '%'
-    }
+    const memeHpStyle = isBoss ? {
+      width: ((((currentLevel + 1) * 30) - ((currentLevel + 1) * 30 - meme.hp)) / (currentLevel + 1)) * 3.33 + '%'
+    } :
+      {
+        width: (((currentLevel * 30) - (currentLevel * 30 - meme.hp)) / currentLevel) * 3.33 + '%'
+      }
     const playerHpStyle = {
       width: ((things.player.lvl * 100) - (things.player.lvl * 100 - things.player.hp)) / things.player.lvl + '%'
     }
@@ -730,7 +765,7 @@ class CombatScreen extends Component {
         </div>
         <div className="combatHpBars">
           <div className="memeHp">
-            <div>Meme's HP</div>
+            <div>Enemy's HP</div>
             <div className="memeHpBar" style={memeHpStyle}>{meme.hp}</div>
           </div>
           <div className="playerHp">

@@ -6,15 +6,15 @@ Mazes and Memes is a *roguelike* dungeon crawler that aims to bring the theme of
 - The fetch to gather JSON meme data.
 - The function to create random mazes
 - The functions to create each level including the things and coordinates inside it.
-- Rendering the 1st level
+- Rendering of each level as player enters
 - Player movement
-- Basic interaction
-- Handle combat
+- Object interactions
+- Handling combat
+- Lose condition
 
 **TODO:**
-- Handle interactions
 - Add boss mechanics
-- Add win/lose conditions and handle
+- Add win condition and handle
 - Add music/sound/graphics
 
 Current playable version: 
