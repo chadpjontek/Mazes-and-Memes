@@ -188,7 +188,7 @@ class App extends Component {
     const hitMsg = ""
     const currentLevel = 1
     // update state with things
-    this.setState({ things, levels, lastVisited, mazeLog, hitMsg, currentLevel })
+    this.setState({ things, levels, lastVisited, mazeLog, hitMsg, currentLevel, attackMsg })
   }
   // finds tunnel space with nothing in it
   getEmpty = (curThings, level, things) => {
@@ -279,12 +279,12 @@ class App extends Component {
       )
       case 'winGame': return (
         <div className="App">
-          <WinGame switchScreen={this.switchScreen} />
+          <WinGame />
         </div>
       )
       case 'maze': return (
         <div className="App">
-          <MazeScreen switchScreen={this.switchScreen}
+          <MazeScreen
             fog={this.state.fog}
             things={this.state.things}
             levels={this.state.levels}
@@ -298,7 +298,7 @@ class App extends Component {
       )
       case 'combat': return (
         <div className="App">
-          <CombatScreen switchScreen={this.switchScreen}
+          <CombatScreen 
             memeJson={this.state.memeJson}
             currentLevel={this.state.currentLevel}
             things={this.state.things}
@@ -619,14 +619,13 @@ class GameOverScreen extends Component {
 
 class WinGame extends Component {
   render() {
-    const { switchScreen } = this.props
     return (
       <div className="StartScreen">
         <h1 className="meme">YOU ESCAPE THE MAZE!</h1>
         <h2 className="standard-text">It's time to collect your reward!</h2>
         <br />
         <form action="https://youtu.be/oHg5SJYRHA0">
-          <input type="submit" value="Collect!" />
+          <input id="win" type="submit" value="Collect!" />
         </form>
       </div>
     )
@@ -636,14 +635,14 @@ class WinGame extends Component {
 class MazeScreen extends Component {
   // player movement functions
   render() {
-    const { switchScreen, fog, things, levels, currentLevel, up, down, left, right, mazeLog } = this.props
-    const { player, memes, heals, weapons, upstairs, downstairs, boss } = things
+    const { fog, things, levels, currentLevel, up, down, left, right, mazeLog } = this.props
+    const { player } = things
     const maze = levels[currentLevel]
     const hpStyle = {
-      height: ((things.player.lvl * 100) - (things.player.lvl * 100 - things.player.hp)) / things.player.lvl + '%'
+      height: ((player.lvl * 100) - (player.lvl * 100 - player.hp)) / player.lvl + '%'
     }
     const xpStyle = {
-      height: ((things.player.lvl * 100) - (things.player.lvl * 100 - things.player.xp)) / things.player.lvl + '%'
+      height: ((player.lvl * 100) - (player.lvl * 100 - player.xp)) / player.lvl + '%'
     }
     let rows = [], tileClass, row;
     for (let y = 0; y < 25; y++) {
@@ -694,7 +693,7 @@ class MazeScreen extends Component {
         <div className="dPad-container">
           <h3>HP</h3>
           <div className="hpContainer">
-            <div className="hpBar" style={hpStyle}>{things.player.hp}</div>
+            <div className="hpBar" style={hpStyle}>{player.hp}</div>
           </div>
           <div id="up" onClick={up} className="dPad">
             <svg viewBox="0 0 100 100">
@@ -703,7 +702,7 @@ class MazeScreen extends Component {
           </div>
           <h3>XP</h3>
           <div className="xpContainer">
-            <div className="xpBar" style={xpStyle}>{things.player.xp}</div>
+            <div className="xpBar" style={xpStyle}>{player.xp}</div>
           </div>
           <div id="left" onClick={left} className="dPad">
             <svg viewBox="0 0 100 100">
@@ -730,7 +729,7 @@ class MazeScreen extends Component {
 class CombatScreen extends Component {
 
   render() {
-    const { switchScreen, things, currentLevel, attack, attackMsg, hitMsg, run, isBoss } = this.props
+    const { things, currentLevel, attack, attackMsg, hitMsg, run, isBoss } = this.props
     const x = things.player.coords.x
     const y = things.player.coords.y
     const arr = isBoss ? things.boss[currentLevel - 1].filter(obj => obj.coords.x === x && obj.coords.y === y) : things.memes[currentLevel - 1].filter(obj => obj.coords.x === x && obj.coords.y === y)
