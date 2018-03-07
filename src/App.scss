@@ -63,7 +63,7 @@
   background-color: yellow;
 }
 .heals {
-  background-color: green;
+  background-color: #24d824;
 }
 .upstairs {
   background-color: magenta;
@@ -105,12 +105,23 @@
   }
 }
 .mazeMsg {
+  z-index: 2;
   grid-column:1/6;
   grid-row: 2/3;
   max-width: 300px;
   max-height: 100px;
 }
 .mazeMsg h2 {
+  font-family: GaboDrive, sans-serif;
+  -webkit-text-stroke: 1px black;
+  color: white;
+  text-shadow:
+    3px 3px 0 #000,
+    -1px -1px 0 #000,  
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+  font-size: 2em;
   margin: 0px;
 }
 .dPad-container {
@@ -123,7 +134,7 @@
   grid-gap: 2px;
   margin: 0 auto 40px;
   svg {
-    padding-left: 10px;
+    padding-left: 25px;
     display: flex;
 
   }
@@ -137,7 +148,7 @@
   padding: 5px;
 }
 .hpBar {
-  background: green;
+  background: #24d824;
   font-size: .8em;
   color: white;
 }
@@ -160,7 +171,6 @@
   grid-column: 3/4;
   grid-row: 1/2;
   transform: rotate(90deg);
-  border: 8px solid black;
 }
 #up:active{
   svg {
@@ -170,7 +180,6 @@
 #left {
   grid-column: 2/3;
   grid-row: 2/3;
-  border: 8px solid black;
 }
 #left:active{
   svg {
@@ -187,7 +196,6 @@
   grid-column: 4/5;
   grid-row: 2/3;
   transform: rotate(180deg);
-  border: 8px solid black;
 }
 #right:active{
   svg {
@@ -198,7 +206,6 @@
   grid-column: 3/4;
   grid-row: 3/4;
   transform: rotate(-90deg);
-  border: 8px solid black;
 }
 #down:active{
   svg {

@@ -307,11 +307,10 @@ const run = (enemyDamg, memeInd) => (state) => {
   if (playerHp === 0) {
     return playerDead(state)
   }
-  const state1 = update(state, { $merge: { attackMsg: `You escape with your life!` } })
-  const state2 = update(state1, { $merge: { hitMsg: `You take ${enemyDamg} damage` } })
-  const state3 = update(state2, { things: { player: { $merge: { hp: playerHp } } } })
-  const state4 = update(state3, {$merge: {currentScreen: "maze"}})
-  return state4
+  const state1 = update(state, { $merge: { mazeLog: `You escape with your life!` } })
+  const state2 = update(state1, { things: { player: { $merge: { hp: playerHp } } } })
+  const state3 = update(state2, {$merge: {currentScreen: "maze"}})
+  return state3
 }
 const combatMsg = (playerDamg, enemyDamg) => (state) => {
   const state1 = update(state, { $merge: { attackMsg: `You deal ${playerDamg} damage` } })
@@ -339,14 +338,14 @@ function memeDead(state, playerHp, memeInd) {
     return levelUp(state2, xp, lvl)
   }
   const state3 = update(state2, { things: { player: { $merge: { hp: playerHp } } } })
-  const state4 = update(state3, { $merge: { hitMsg: "Victory!" } })
+  const state4 = update(state3, { $merge: { mazeLog: "Victory!" } })
   const state5 = update(state4, { things: { player: { $merge: { xp } } } })
   const state6 = update(state5, {$merge: {currentScreen: "maze"}})
   return state6
 }
 function levelUp(state, xp, lvl) {
   const newXp = xp - lvl * 100
-  const state1 = update(state, { $merge: { hitMsg: `You are now level ${lvl + 1}!` } })
+  const state1 = update(state, { $merge: { mazeLog: `You are now level ${lvl + 1}!` } })
   const state2 = update(state1, { things: { player: { $merge: { xp: newXp } } } })
   const state3 = update(state2, { things: { player: { $merge: { lvl: lvl + 1 } } } })
   const state4 = update(state3, { things: { player: { $merge: { damgMod: state.things.player.damgMod + 1 } } } })
