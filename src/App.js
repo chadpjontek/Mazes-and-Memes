@@ -1,6 +1,41 @@
 import React, { Component } from 'react'
 import './App.css'
 import update from 'immutability-helper'
+import {Howl} from 'howler'
+import finalBattle from './boss-battle.mp3';
+import victory from './victory.mp3'
+import slash from './attack.wav'
+import battle from './meme-battle.mp3'
+
+const sounds = {
+  battle: {
+    sound: new Howl({
+      src: [battle]
+    })
+  },
+  finalBattle: {
+    sound: new Howl({
+      src: [finalBattle]
+    })
+  },
+  victory: {
+    sound: new Howl({
+      src: [victory]
+    })
+  },
+  slash: {
+    sound: new Howl({
+      src: [slash]
+    })
+  }
+}
+
+function playSound(id) {
+  sounds[id].sound.play();
+}
+function stopSound(id) {
+  sounds[id].sound.stop();
+}
 
 class App extends Component {
   constructor(props) {
@@ -315,6 +350,8 @@ class App extends Component {
   }
 }
 const run = (enemyDamg, memeInd) => (state) => {
+  stopSound('battle')
+  stopSound('finalBattle')
   const playerHp = damgResult(state.things.player.hp, enemyDamg)
   if (playerHp === 0) {
     return playerDead(state)
@@ -329,6 +366,7 @@ const combatMsg = (playerDamg, enemyDamg) => (state) => {
   return update(state1, { $merge: { hitMsg: `You take ${enemyDamg} damage` } })
 }
 const attack = (playerDamg, enemyDamg, memeInd) => (state) => {
+  playSound('slash')
   const playerHp = damgResult(state.things.player.hp, enemyDamg)
   const enemyHp = state.isBoss ? damgResult(state.things.boss[state.currentLevel - 1][memeInd].hp, playerDamg) : damgResult(state.things.memes[state.currentLevel - 1][memeInd].hp, playerDamg)
   if (playerHp === 0) {
@@ -345,6 +383,8 @@ const attack = (playerDamg, enemyDamg, memeInd) => (state) => {
   }
 }
 function memeDead(state, playerHp, memeInd) {
+  stopSound('battle')
+  playSound('victory')
   const state1 = update(state, { lastVisited: { $merge: { tile: 0 } } })
   const state2 = update(state1, { things: { memes: { [state.currentLevel - 1]: { [memeInd]: { $merge: { hp: 0 } } } } } })
   const xp = state.things.player.xp + state.things.memes[state.currentLevel - 1][memeInd].xp
@@ -369,9 +409,13 @@ function levelUp(state, xp, lvl) {
   return state6
 }
 function playerDead(state) {
+  stopSound('battle')
+  stopSound('finalBattle')
   return update(state, { $merge: { currentScreen: "gameOver" } })
 }
 function winGame(state) {
+  stopSound('finalBattle')
+  playSound('victory')
   return update(state, { $merge: { currentScreen: "winGame" } })
 }
 function damgResult(hp, damg) {
@@ -383,6 +427,7 @@ function damgResult(hp, damg) {
 function checkTile(tile, state) {
   switch (tile) {
     case "memes": {
+      playSound('battle')
       const state1 = update(state, { $merge: { attackMsg: "" } })
       const state2 = update(state1, { $merge: { hitMsg: "" } })
       return update(state2, { $merge: { currentScreen: 'combat' } })
@@ -431,6 +476,7 @@ function checkTile(tile, state) {
       return update(state6, { $merge: { mazeLog: `You've ascended to level ${state.currentLevel - 1}` } })
     }
     case "boss": {
+      playSound('finalBattle')
       const state1 = update(state, { $merge: { attackMsg: "" } })
       const state2 = update(state1, { $merge: { hitMsg: "" } })
       const state3 = update(state2, { $merge: { isBoss: true } })
