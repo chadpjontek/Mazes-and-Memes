@@ -13,10 +13,11 @@ Mazes and Memes is a *roguelike* dungeon crawler that aims to bring the theme of
 - Lose condition
 - Boss added
 - Win condition and reward
+- svgs used for tiles
 
 **TODO:**
+- Add music/sound
 - Refactor
-- Add music/sound/graphics
 
 Current playable version: 
 https://github.com/chadpjontek/Mazes-and-Memes

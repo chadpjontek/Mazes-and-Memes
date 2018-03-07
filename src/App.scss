@@ -57,37 +57,39 @@
   overflow: hidden;
 }
 .memes {
-  background-color: red;
+  background-image: url(./meme.svg);
 }
 .weapons {
-  background-color: yellow;
+  background-image: url(./weapon.svg);
 }
 .heals {
-  background-color: #24d824;
+  background-image: url(./heal.svg);
 }
 .upstairs {
-  background-color: magenta;
+
+  background-image: url(./upstairs.svg);
 }
 .downstairs {
-  background-color: purple;
+  background-image: url(./downstairs.svg);
 }
-.boss {
-  background-color: orange;
+.boss { 
+  background-image: url(./boss.svg);
 }
 .player {
-  background-color: blue;
-}
-.corpse {
-  background-color: brown;
+  background-image: url(./player.svg);
 }
 .wall {
-  background-color: black;
+  background-image: url(./wall.svg);
+  background-size: contain;
 }
 .tunnel {
   background-color: white;
 }
 .fog {
   animation: fogMaze 2s forwards;
+}
+.transparent{
+  background-image: none; 
 }
 .tile {
   width: .75em;
@@ -350,8 +352,8 @@
 }
 @keyframes fogMaze {
   100% {
-  background-color: gray;
-  color: gray;
+  background-color: black;
+  color: black;
   }
 }
 @keyframes fallIn {

@@ -118,7 +118,7 @@ class App extends Component {
         let packedBossCoord = this.getEmpty(thingCoords, levels[l])
         let bossCoord = packedBossCoord[0]
         thingCoords.push(bossCoord)
-        boss[4][0] = { coords: bossCoord, lvl: 6, hp: 180, xp: 0, damgMod: 3, name: "Over 9000!", url: '/over9000.jpg', width: 640, height: 480 }
+        boss[4][0] = { coords: bossCoord, lvl: 6, hp: 180, xp: 0, damgMod: 3, name: "Over 9000!", url: 'https://vignette.wikia.nocookie.net/dragonball/images/4/4b/VegetaItsOver9000-02.png/revision/latest?cb=20100724145819', width: 640, height: 480 }
       } else {
         let packedDownstairsCoord = this.getEmpty(thingCoords, levels[l])
         let downstairsCoord = packedDownstairsCoord[0]
@@ -673,9 +673,9 @@ class MazeScreen extends Component {
           const xDiff = player.coords.x - x,
             yDiff = player.coords.y - y;
           if (Math.abs(xDiff) > 3 || Math.abs(yDiff) > 3) {
-            tileClass += ' fog';
+            tileClass += ' fog transparent';
           } else if (Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2)) >= 5) {
-            tileClass += ' fog';
+            tileClass += ' fog transparent';
           }
         }
         row.push(React.createElement('span', { className: 'tile ' + tileClass, key: x + 'x' + y }, ' '));
