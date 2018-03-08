@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import './App.css'
 import update from 'immutability-helper'
-import {Howl} from 'howler'
+import { Howl } from 'howler'
 import finalBattle from './boss-battle.mp3';
 import victory from './victory.mp3'
 import slash from './attack.mp3'
@@ -98,7 +98,9 @@ class App extends Component {
       mazeLog: "Level 1",
       attackMsg: "",
       hitMsg: "",
-      isBoss: false
+      isBoss: false,
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight
     }
   }
 
@@ -129,6 +131,9 @@ class App extends Component {
       return response.json()
     }
     getMemes()
+  }
+  resizeWindow = () => {
+    this.setState(setWindowSize)
   }
   // generate each level's maze
   generateMazes = () => {
@@ -363,7 +368,7 @@ class App extends Component {
       )
       case 'combat': return (
         <div className="App">
-          <CombatScreen 
+          <CombatScreen
             memeJson={this.state.memeJson}
             currentLevel={this.state.currentLevel}
             things={this.state.things}
@@ -668,6 +673,12 @@ function* shuffle(array) {
   let i = array.length;
   while (i--) {
     yield array.splice(Math.floor(Math.random() * (i + 1)), 1)[0];
+  }
+}
+function setWindowSize() {
+  return {
+    windowWidth: window.innerWidth,
+    windowHeight: window.innerHeight
   }
 }
 
