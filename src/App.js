@@ -4,8 +4,13 @@ import update from 'immutability-helper'
 import {Howl} from 'howler'
 import finalBattle from './boss-battle.mp3';
 import victory from './victory.mp3'
-import slash from './attack.wav'
+import slash from './attack.mp3'
 import battle from './meme-battle.mp3'
+import healthPickup from './healthPickup.mp3'
+import lose from './lose.mp3'
+import runAway from './run.mp3'
+import stairs from './stairs.mp3'
+import weaponPickup from './weaponPickup.mp3'
 
 const sounds = {
   battle: {
@@ -26,6 +31,31 @@ const sounds = {
   slash: {
     sound: new Howl({
       src: [slash]
+    })
+  },
+  healthPickup: {
+    sound: new Howl({
+      src: [healthPickup]
+    })
+  },
+  lose: {
+    sound: new Howl({
+      src: [lose]
+    })
+  },
+  runAway: {
+    sound: new Howl({
+      src: [runAway]
+    })
+  },
+  stairs: {
+    sound: new Howl({
+      src: [stairs]
+    })
+  },
+  weaponPickup: {
+    sound: new Howl({
+      src: [weaponPickup]
     })
   }
 }
@@ -352,6 +382,7 @@ class App extends Component {
 const run = (enemyDamg, memeInd) => (state) => {
   stopSound('battle')
   stopSound('finalBattle')
+  playSound('runAway')
   const playerHp = damgResult(state.things.player.hp, enemyDamg)
   if (playerHp === 0) {
     return playerDead(state)
@@ -411,6 +442,7 @@ function levelUp(state, xp, lvl) {
 function playerDead(state) {
   stopSound('battle')
   stopSound('finalBattle')
+  playSound('lose')
   return update(state, { $merge: { currentScreen: "gameOver" } })
 }
 function winGame(state) {
@@ -433,6 +465,7 @@ function checkTile(tile, state) {
       return update(state2, { $merge: { currentScreen: 'combat' } })
     }
     case "weapons": {
+      playSound('weaponPickup')
       const damgMod = state.things.player.lvl + state.things.weapons[state.currentLevel - 1].damgMod
       const state1 = update(state, { $merge: { mazeLog: `You found a +${state.currentLevel} ${state.things.weapons[state.currentLevel - 1].name}` } })
       const state2 = update(state1, { things: { player: { $merge: { damgMod } } } })
@@ -441,11 +474,13 @@ function checkTile(tile, state) {
     }
     // TODO: handle these
     case "heals": {
+      playSound('healthPickup')
       const state1 = update(state, { things: { player: { $merge: { hp: state.things.player.lvl * 100 } } } })
       const state2 = update(state1, { lastVisited: { $merge: { tile: 0 } } })
       return update(state2, { $merge: { mazeLog: 'You are healed!' } })
     }
     case "downstairs": {
+      playSound('stairs')
       const upstairCoords = state.things.upstairs[state.currentLevel - 1]
       const upX = upstairCoords.x
       const upY = upstairCoords.y
@@ -461,6 +496,7 @@ function checkTile(tile, state) {
       return update(state6, { $merge: { mazeLog: `You've decended to level ${state.currentLevel + 1}` } })
     }
     case "upstairs": {
+      playSound('stairs')
       const upstairCoords = state.things.upstairs[state.currentLevel - 2]
       const upX = upstairCoords.x
       const upY = upstairCoords.y
