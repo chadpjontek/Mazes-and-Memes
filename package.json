@@ -3,6 +3,7 @@
   "version": "1.5.1",
   "private": true,
   "dependencies": {
+    "hammerjs": "^2.0.8",
     "howler": "^2.0.9",
     "immutability-helper": "^2.6.5",
     "node-sass-chokidar": "^0.0.3",

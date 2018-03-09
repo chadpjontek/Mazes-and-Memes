@@ -11,6 +11,8 @@ import lose from './lose.mp3'
 import runAway from './run.mp3'
 import stairs from './stairs.mp3'
 import weaponPickup from './weaponPickup.mp3'
+import * as Hammer from 'hammerjs';
+window.Hammer = Hammer.default;
 
 const sounds = {
   battle: {
@@ -132,6 +134,47 @@ class App extends Component {
     }
     getMemes()
     this.resizeWindow()
+  }
+  handleKeypress = (e) => {
+    if (this.state.currentScreen !== 'maze') {
+      return
+    }
+    switch (e.keyCode) {
+      case 37:
+        this.left()
+        break;
+      case 38:
+        this.up()
+        break;
+      case 39:
+        this.right()
+        break;
+      case 40:
+        this.down()
+        break;
+      default:
+        break;
+    }
+  }
+  handleSwipe = (e) => {
+    if (this.state.currentScreen !== 'maze') {
+      return
+    }
+    const { overallVelocity, angle } = e;
+    if (Math.abs(overallVelocity) > .75) {
+      if (angle > -100 && angle < -80) {
+        this.up()
+      }
+      if (angle > -10 && angle < 10) {
+        this.right()
+      }
+      if (angle > 80 && angle < 100) {
+        this.down()
+      }
+      if (Math.abs(angle) > 170) {
+        this.left()
+      }
+    }
   }
   resizeWindow = () => {
     this.setState(setWindowSize())
@@ -336,8 +379,8 @@ class App extends Component {
     this.setState(attack(playerDamg, enemyDamg, memeInd))
   }
   render() {
-    const {state,switchScreen,up,down,left,right,attack,run} = this
-    const {fog,things,levels,currentLevel,mazeLog,attackMsg,hitMsg,isBoss,windowHeight,windowWidth,currentScreen} = state
+    const { state, switchScreen, up, down, left, right, attack, run, handleKeypress, handleSwipe } = this
+    const { fog, things, levels, currentLevel, mazeLog, attackMsg, hitMsg, isBoss, windowHeight, windowWidth, currentScreen } = state
     // render the current screen
     switch (currentScreen) {
       case 'start': return (
@@ -369,7 +412,9 @@ class App extends Component {
             mazeLog={mazeLog}
             windowHeight={windowHeight}
             windowWidth={windowWidth}
-             />
+            handleKeypress={handleKeypress}
+            handleSwipe={handleSwipe}
+          />
         </div>
       )
       case 'combat': return (
@@ -389,6 +434,7 @@ class App extends Component {
     }
   }
 }
+
 const run = (enemyDamg, memeInd) => (state) => {
   stopSound('battle')
   stopSound('finalBattle')
@@ -731,7 +777,18 @@ class WinGame extends Component {
 }
 
 class MazeScreen extends Component {
-  // player movement functions
+  componentDidMount() {
+    window.addEventListener('keydown', this.props.handleKeypress);
+    window.addEventListener('resize', setWindowSize);
+    const touchElement = document.getElementById('root');
+    const hammertime = new Hammer(touchElement);
+    hammertime.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
+    hammertime.on('swipe', this.props.handleSwipe);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeypress);
+    window.removeEventListener('resize', setWindowSize);
+  }
   render() {
     const { fog, things, levels, currentLevel, up, down, left, right, mazeLog, windowWidth, windowHeight } = this.props
     const { player } = things
@@ -743,8 +800,8 @@ class MazeScreen extends Component {
       height: ((player.lvl * 100) - (player.lvl * 100 - player.xp)) / player.lvl + '%'
     }
     const tileSize = document.getElementsByClassName('tile').item(0) ? document.getElementsByClassName('tile').item(0).clientHeight : 24
-    const numCols = Math.floor((windowWidth / tileSize)-1)
-    const numRows = Math.floor((windowHeight / tileSize)-1)
+    const numCols = Math.floor((windowWidth / tileSize) - 1)
+    const numRows = Math.floor((windowHeight / tileSize) - 1)
     let startX = player.coords.x - (Math.floor(numCols / 2));
     let startY = player.coords.y - (Math.floor(numRows / 2));
     if (startX < 0) startX = 0;
