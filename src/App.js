@@ -131,9 +131,10 @@ class App extends Component {
       return response.json()
     }
     getMemes()
+    this.resizeWindow()
   }
   resizeWindow = () => {
-    this.setState(setWindowSize)
+    this.setState(setWindowSize())
   }
   // generate each level's maze
   generateMazes = () => {
@@ -335,16 +336,18 @@ class App extends Component {
     this.setState(attack(playerDamg, enemyDamg, memeInd))
   }
   render() {
+    const {state,switchScreen,up,down,left,right,attack,run} = this
+    const {fog,things,levels,currentLevel,mazeLog,attackMsg,hitMsg,isBoss,windowHeight,windowWidth,currentScreen} = state
     // render the current screen
-    switch (this.state.currentScreen) {
+    switch (currentScreen) {
       case 'start': return (
         <div className="App">
-          <StartScreen switchScreen={this.switchScreen} />
+          <StartScreen switchScreen={switchScreen} />
         </div>
       )
       case 'gameOver': return (
         <div className="App">
-          <GameOverScreen switchScreen={this.switchScreen} />
+          <GameOverScreen switchScreen={switchScreen} />
         </div>
       )
       case 'winGame': return (
@@ -355,28 +358,30 @@ class App extends Component {
       case 'maze': return (
         <div className="App">
           <MazeScreen
-            fog={this.state.fog}
-            things={this.state.things}
-            levels={this.state.levels}
-            currentLevel={this.state.currentLevel}
-            up={this.up}
-            down={this.down}
-            left={this.left}
-            right={this.right}
-            mazeLog={this.state.mazeLog} />
+            fog={fog}
+            things={things}
+            levels={levels}
+            currentLevel={currentLevel}
+            up={up}
+            down={down}
+            left={left}
+            right={right}
+            mazeLog={mazeLog}
+            windowHeight={windowHeight}
+            windowWidth={windowWidth}
+             />
         </div>
       )
       case 'combat': return (
         <div className="App">
           <CombatScreen
-            memeJson={this.state.memeJson}
-            currentLevel={this.state.currentLevel}
-            things={this.state.things}
-            attack={this.attack}
-            run={this.run}
-            attackMsg={this.state.attackMsg}
-            hitMsg={this.state.hitMsg}
-            isBoss={this.state.isBoss}
+            currentLevel={currentLevel}
+            things={things}
+            attack={attack}
+            run={run}
+            attackMsg={attackMsg}
+            hitMsg={hitMsg}
+            isBoss={isBoss}
           />
         </div>
       )
@@ -728,7 +733,7 @@ class WinGame extends Component {
 class MazeScreen extends Component {
   // player movement functions
   render() {
-    const { fog, things, levels, currentLevel, up, down, left, right, mazeLog } = this.props
+    const { fog, things, levels, currentLevel, up, down, left, right, mazeLog, windowWidth, windowHeight } = this.props
     const { player } = things
     const maze = levels[currentLevel]
     const hpStyle = {
@@ -737,10 +742,27 @@ class MazeScreen extends Component {
     const xpStyle = {
       height: ((player.lvl * 100) - (player.lvl * 100 - player.xp)) / player.lvl + '%'
     }
+    const tileSize = document.getElementsByClassName('tile').item(0) ? document.getElementsByClassName('tile').item(0).clientHeight : 24
+    const numCols = Math.floor((windowWidth / tileSize)-1)
+    const numRows = Math.floor((windowHeight / tileSize)-1)
+    let startX = player.coords.x - (Math.floor(numCols / 2));
+    let startY = player.coords.y - (Math.floor(numRows / 2));
+    if (startX < 0) startX = 0;
+    if (startY < 0) startY = 0;
+    let endX = startX + numCols;
+    let endY = startY + numRows;
+    if (endX > maze.length) {
+      startX = numCols > maze.length ? 0 : startX - (endX - maze.length);
+      endX = maze.length;
+    }
+    if (endY > maze[0].length) {
+      startY = numRows > maze[0].length ? 0 : startY - (endY - maze[0].length);
+      endY = maze[0].length;
+    }
     let rows = [], tileClass, row;
-    for (let y = 0; y < 25; y++) {
+    for (let y = startY; y < endY; y++) {
       row = [];
-      for (let x = 0; x < 25; x++) {
+      for (let x = startX; x < endX; x++) {
         // check things and add class to tileClass
         // player
         if (maze[x][y] === 'player') {

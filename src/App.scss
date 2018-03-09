@@ -111,17 +111,17 @@
           animation: fogMaze 2s forwards; }
 
 .tile {
-  width: .75em;
+  width: 1.5em;
   float: left; }
 
 .boardRow, .tile {
-  height: .75em; }
+  height: 1.5em; }
 
-@media (min-width: 480px) {
-  .boardRow .tile {
-    height: 1em; }
-  .tile {
-    width: 1em; } }
+// @media (min-width: 480px) {
+//   .boardRow .tile {
+//     height: 1em; }
+//   .tile {
+//     width: 1em; } }
 
 .mazeMsg {
   z-index: 2;
