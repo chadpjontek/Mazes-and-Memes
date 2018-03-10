@@ -121,22 +121,19 @@
 .tunnel {
   background-color: white; }
 
-.fog {
-  background-color: black;
+.transparent {
   background-image: none;
-  color: black; }
-
-.hpBar {
-  background: #24d824;
-  font-size: .8em;
-  color: white; }
+}
+  .fog {
+  -webkit-animation: fogMaze 2s forwards;
+          animation: fogMaze 2s forwards; }
 
 .tile {
-  width: 1.5em;
+  width: 2.5em;
   float: left; }
 
 .boardRow, .tile {
-  height: 1.5em; }
+  height: 2.5em; }
 
 // .dPad-container {
 //   -webkit-animation: fadeIn 3s;
@@ -457,6 +454,11 @@
   width: 100px;
   height: 50px;
   margin: 5px; }
+
+@keyframes fogMaze {
+  100% {
+    background-color: black;
+    color: black; } }
 
 @-webkit-keyframes fallIn {
   0% {
