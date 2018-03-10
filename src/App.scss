@@ -106,16 +106,19 @@
 .tunnel {
   background-color: white; }
 
-.fog {
+.transparent {
+  background-image: none;
+}
+  .fog {
   -webkit-animation: fogMaze 2s forwards;
           animation: fogMaze 2s forwards; }
 
 .tile {
-  width: 1.5em;
+  width: 2.5em;
   float: left; }
 
 .boardRow, .tile {
-  height: 1.5em; }
+  height: 2.5em; }
 
 // @media (min-width: 480px) {
 //   .boardRow .tile {
@@ -465,16 +468,9 @@
   height: 50px;
   margin: 5px; }
 
-@-webkit-keyframes fogMaze {
-  100% {
-    background-color: black;
-    background-image: none;
-    color: black; } }
-
 @keyframes fogMaze {
   100% {
     background-color: black;
-    background-image: none;
     color: black; } }
 
 @-webkit-keyframes fallIn {

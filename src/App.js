@@ -742,9 +742,9 @@ class MazeScreen extends Component {
     const xpStyle = {
       height: ((player.lvl * 100) - (player.lvl * 100 - player.xp)) / player.lvl + '%'
     }
-    const tileSize = document.getElementsByClassName('tile').item(0) ? document.getElementsByClassName('tile').item(0).clientHeight : 24
+    const tileSize = document.getElementsByClassName('tile').item(0) ? document.getElementsByClassName('tile').item(0).clientHeight : 40
     const numCols = Math.floor((windowWidth / tileSize)-1)
-    const numRows = Math.floor((windowHeight / tileSize)-1)
+    const numRows = Math.floor((windowHeight / tileSize)-8)
     let startX = player.coords.x - (Math.floor(numCols / 2));
     let startY = player.coords.y - (Math.floor(numRows / 2));
     if (startX < 0) startX = 0;
@@ -788,9 +788,9 @@ class MazeScreen extends Component {
           const xDiff = player.coords.x - x,
             yDiff = player.coords.y - y;
           if (Math.abs(xDiff) > 3 || Math.abs(yDiff) > 3) {
-            tileClass += ' fog';
+            tileClass += ' fog transparent';
           } else if (Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2)) >= 5) {
-            tileClass += ' fog';
+            tileClass += ' fog transparent';
           }
         }
         row.push(React.createElement('span', { className: 'tile ' + tileClass, key: x + 'x' + y }, ' '));
@@ -810,7 +810,7 @@ class MazeScreen extends Component {
           <div className="hpContainer">
             <div className="hpBar" style={hpStyle}>{player.hp}</div>
           </div>
-          <div id="up" onClick={up} className="dPad">
+          <div id="up" onMouseDown ={up} className="dPad">
             <svg viewBox="0 0 100 100">
               <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
             </svg>
@@ -819,18 +819,18 @@ class MazeScreen extends Component {
           <div className="xpContainer">
             <div className="xpBar" style={xpStyle}>{player.xp}</div>
           </div>
-          <div id="left" onClick={left} className="dPad">
+          <div id="left" onMouseDown ={left} className="dPad">
             <svg viewBox="0 0 100 100">
               <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
             </svg>
           </div>
           <div id="center" className="dPad"></div>
-          <div id="right" onClick={right} className="dPad">
+          <div id="right" onMouseDown ={right} className="dPad">
             <svg viewBox="0 0 100 100">
               <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
             </svg>
           </div>
-          <div id="down" onClick={down} className="dPad">
+          <div id="down" onMouseDown ={down} className="dPad">
             <svg viewBox="0 0 100 100">
               <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
             </svg>
