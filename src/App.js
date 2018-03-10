@@ -189,7 +189,7 @@ class App extends Component {
         let packedBossCoord = this.getEmpty(thingCoords, levels[l])
         let bossCoord = packedBossCoord[0]
         thingCoords.push(bossCoord)
-        boss[4][0] = { coords: bossCoord, lvl: 6, hp: 180, xp: 0, damgMod: 3, name: "Over 9000!", url: 'https://vignette.wikia.nocookie.net/dragonball/images/4/4b/VegetaItsOver9000-02.png/revision/latest?cb=20100724145819', width: 640, height: 480 }
+        boss[4][0] = { coords: bossCoord, lvl: 10, hp: 300, xp: 0, damgMod: 3, name: "Over 9000!", url: 'https://vignette.wikia.nocookie.net/dragonball/images/4/4b/VegetaItsOver9000-02.png/revision/latest?cb=20100724145819', width: 640, height: 480 }
       } else {
         let packedDownstairsCoord = this.getEmpty(thingCoords, levels[l])
         let downstairsCoord = packedDownstairsCoord[0]
@@ -445,7 +445,7 @@ function levelUp(state, xp, lvl) {
   const state2 = update(state1, { things: { player: { $merge: { xp: newXp } } } })
   const state3 = update(state2, { things: { player: { $merge: { lvl: lvl + 1 } } } })
   const state4 = update(state3, { things: { player: { $merge: { damgMod: state.things.player.damgMod + 1 } } } })
-  const state5 = update(state4, { things: { player: { $merge: { hp: (lvl + 1) * 100 } } } })
+  const state5 = update(state4, { things: { player: { $merge: { hp: (lvl + 1) * 50 + 50 } } } })
   const state6 = update(state5, { $merge: { currentScreen: "maze" } })
   return state6
 }
@@ -485,7 +485,7 @@ function checkTile(tile, state) {
     // TODO: handle these
     case "heals": {
       playSound('healthPickup')
-      const state1 = update(state, { things: { player: { $merge: { hp: state.things.player.lvl * 100 } } } })
+      const state1 = update(state, { things: { player: { $merge: { hp: state.things.player.lvl * 50 + 50 } } } })
       const state2 = update(state1, { lastVisited: { $merge: { tile: 0 } } })
       return update(state2, { $merge: { mazeLog: 'You are healed!' } })
     }
@@ -737,7 +737,7 @@ class MazeScreen extends Component {
     const { player } = things
     const maze = levels[currentLevel]
     const hpStyle = {
-      height: ((player.lvl * 100) - (player.lvl * 100 - player.hp)) / player.lvl + '%'
+      height: (((player.lvl * 50) + 50) - (((player.lvl * 50) + 50) - player.hp)) / ((player.lvl * .5) + .5) + '%'
     }
     const xpStyle = {
       height: ((player.lvl * 100) - (player.lvl * 100 - player.xp)) / player.lvl + '%'
@@ -863,7 +863,7 @@ class CombatScreen extends Component {
         width: (((currentLevel * 30) - (currentLevel * 30 - meme.hp)) / currentLevel) * 3.33 + '%'
       }
     const playerHpStyle = {
-      width: ((things.player.lvl * 100) - (things.player.lvl * 100 - things.player.hp)) / things.player.lvl + '%'
+      width: (((things.player.lvl * 50) + 50) - (((things.player.lvl * 50) + 50) - things.player.hp)) / ((things.player.lvl * .5) + .5) + '%'
     }
     return (
       <div className="CombatScreen">
