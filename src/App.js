@@ -263,7 +263,7 @@ class App extends Component {
   }
   // finds tunnel space with nothing in it
   getEmpty = (curThings, level, things) => {
-    let coords, x, y, noThingsAt = true, thingCoords = [], newCoords = []
+    let coords, x = null, y = null, noThingsAt = true, thingCoords = [], newCoords = []
     if (curThings.length !== 0) {
       for (let ele of curThings) {
         thingCoords.push(ele)
