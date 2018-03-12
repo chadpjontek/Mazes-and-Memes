@@ -211,6 +211,8 @@
   font-size: .8em;
   color: white; }
 
+.clickable { cursor: pointer; }
+
 #up {
   -ms-grid-column: 3;
   -ms-grid-column-span: 1;
@@ -467,6 +469,11 @@
   width: 100px;
   height: 50px;
   margin: 5px; }
+
+@-webkit-keyframes fogMaze {
+  100% {
+    background-color: black;
+    color: black; } }
 
 @keyframes fogMaze {
   100% {

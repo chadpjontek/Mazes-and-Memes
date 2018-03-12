@@ -810,7 +810,7 @@ class MazeScreen extends Component {
           <div className="hpContainer">
             <div className="hpBar" style={hpStyle}>{player.hp}</div>
           </div>
-          <div id="up" onMouseDown ={up} className="dPad">
+          <div id="up" onClick ={up} className="dPad clickable">
             <svg viewBox="0 0 100 100">
               <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
             </svg>
@@ -819,18 +819,18 @@ class MazeScreen extends Component {
           <div className="xpContainer">
             <div className="xpBar" style={xpStyle}>{player.xp}</div>
           </div>
-          <div id="left" onMouseDown ={left} className="dPad">
+          <div id="left" onClick ={left} className="dPad clickable">
             <svg viewBox="0 0 100 100">
               <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
             </svg>
           </div>
           <div id="center" className="dPad"></div>
-          <div id="right" onMouseDown ={right} className="dPad">
+          <div id="right" onClick ={right} className="dPad clickable">
             <svg viewBox="0 0 100 100">
               <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
             </svg>
           </div>
-          <div id="down" onMouseDown ={down} className="dPad">
+          <div id="down" onClick ={down} className="dPad clickable">
             <svg viewBox="0 0 100 100">
               <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
             </svg>
