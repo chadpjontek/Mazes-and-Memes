@@ -79,28 +79,28 @@
   overflow: hidden; }
 
 .memes {
-  background-image: url(./meme.svg); }
+  background-image: url(./images/meme.svg); }
 
 .weapons {
-  background-image: url(./weapon.svg); }
+  background-image: url(./images/weapon.svg); }
 
 .heals {
-  background-image: url(./heal.svg); }
+  background-image: url(./images/heal.svg); }
 
 .upstairs {
-  background-image: url(./upstairs.svg); }
+  background-image: url(./images/upstairs.svg); }
 
 .downstairs {
-  background-image: url(./downstairs.svg); }
+  background-image: url(./images/downstairs.svg); }
 
 .boss {
-  background-image: url(./boss.svg); }
+  background-image: url(./images/boss.svg); }
 
 .player {
-  background-image: url(./player.svg); }
+  background-image: url(./images/player.svg); }
 
 .wall {
-  background-image: url(./wall.svg);
+  background-image: url(./images/wall.svg);
   background-size: contain; }
 
 .tunnel {
@@ -119,12 +119,6 @@
 
 .boardRow, .tile {
   height: 2.5em; }
-
-// @media (min-width: 480px) {
-//   .boardRow .tile {
-//     height: 1em; }
-//   .tile {
-//     width: 1em; } }
 
 .mazeMsg {
   z-index: 2;
@@ -167,6 +161,7 @@
       grid-template-rows: repeat(3, 1fr);
   grid-gap: 2px;
   margin: 0 auto 40px; }
+  
   .dPad-container svg {
     padding-left: 25px;
     display: -webkit-box;
@@ -516,8 +511,8 @@
 
 @font-face {
   font-family: GaboDrive;
-  src: url("./gabo.otf"); }
+  src: url("./fonts/gabo.otf"); }
 
 @font-face {
   font-family: 'Libre Baskerville';
-  src: url("./LibreBaskerville-Regular.ttf"); }
+  src: url("./fonts/LibreBaskerville-Regular.ttf"); }

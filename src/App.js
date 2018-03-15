@@ -1,16 +1,21 @@
 import React, { Component } from 'react'
+import StartScreen from './StartScreen'
+import GameOverScreen from './GameOverScreen'
+import WinGame from './WinGame'
+import MazeScreen from './MazeScreen'
+import CombatScreen from './CombatScreen'
 import './App.css'
 import update from 'immutability-helper'
 import { Howl } from 'howler'
-import finalBattle from './boss-battle.mp3';
-import victory from './victory.mp3'
-import slash from './attack.mp3'
-import battle from './meme-battle.mp3'
-import healthPickup from './healthPickup.mp3'
-import lose from './lose.mp3'
-import runAway from './run.mp3'
-import stairs from './stairs.mp3'
-import weaponPickup from './weaponPickup.mp3'
+import finalBattle from './sounds/boss-battle.mp3';
+import victory from './sounds/victory.mp3'
+import slash from './sounds/attack.mp3'
+import battle from './sounds/meme-battle.mp3'
+import healthPickup from './sounds/healthPickup.mp3'
+import lose from './sounds/lose.mp3'
+import runAway from './sounds/run.mp3'
+import stairs from './sounds/stairs.mp3'
+import weaponPickup from './sounds/weaponPickup.mp3'
 
 const sounds = {
   battle: {
@@ -58,13 +63,6 @@ const sounds = {
       src: [weaponPickup]
     })
   }
-}
-
-function playSound(id) {
-  sounds[id].sound.play();
-}
-function stopSound(id) {
-  sounds[id].sound.stop();
 }
 
 class App extends Component {
@@ -147,7 +145,6 @@ class App extends Component {
       i++;
     }
     return levels
-    // this.setState({ levels })
   }
   // add things to each level
   populateLevels = () => {
@@ -157,7 +154,7 @@ class App extends Component {
     // variable to hold coords for each level
     let thingCoords = []
     // create 5 sets of 5 random memes
-    const randMeme = shuffle(Array.from(Array(100).keys()))
+    const randMeme = shuffle(Array.from(Array(memeJson.length).keys()))
     for (let lvl = 0; lvl < 5; lvl++) {
       for (let i = 0; i < 5; i++) {
         let randNum = randMeme.next().value
@@ -297,8 +294,6 @@ class App extends Component {
       case 'start': this.populateLevels()
         currentScreen = 'maze'
         break
-      case 'center': currentScreen = 'combat'
-        break
       case 'winGame': currentScreen = 'winGame'
         break
       default: currentScreen = 'maze'
@@ -311,13 +306,13 @@ class App extends Component {
     this.setState(up)
   }
   down = () => {
-    this.setState(down(this.state))
+    this.setState(down)
   }
   left = () => {
-    this.setState(left(this.state))
+    this.setState(left)
   }
   right = () => {
-    this.setState(right(this.state))
+    this.setState(right)
   }
   // handle run outcome
   run = () => {
@@ -336,8 +331,8 @@ class App extends Component {
     this.setState(attack(playerDamg, enemyDamg, memeInd))
   }
   render() {
-    const {state,switchScreen,up,down,left,right,attack,run} = this
-    const {fog,things,levels,currentLevel,mazeLog,attackMsg,hitMsg,isBoss,windowHeight,windowWidth,currentScreen} = state
+    const { state, switchScreen, up, down, left, right, attack, run } = this
+    const { fog, things, levels, currentLevel, mazeLog, attackMsg, hitMsg, isBoss, windowHeight, windowWidth, currentScreen } = state
     // render the current screen
     switch (currentScreen) {
       case 'start': return (
@@ -369,7 +364,7 @@ class App extends Component {
             mazeLog={mazeLog}
             windowHeight={windowHeight}
             windowWidth={windowWidth}
-             />
+          />
         </div>
       )
       case 'combat': return (
@@ -389,6 +384,7 @@ class App extends Component {
     }
   }
 }
+
 const run = (enemyDamg, memeInd) => (state) => {
   stopSound('battle')
   stopSound('finalBattle')
@@ -422,6 +418,12 @@ const attack = (playerDamg, enemyDamg, memeInd) => (state) => {
     const finalState = state.isBoss ? update(state1, { things: { boss: { [state.currentLevel - 1]: { [memeInd]: { $merge: { hp: enemyHp } } } } } }) : update(state1, { things: { memes: { [state.currentLevel - 1]: { [memeInd]: { $merge: { hp: enemyHp } } } } } })
     return finalState
   }
+}
+function playSound(id) {
+  sounds[id].sound.play();
+}
+function stopSound(id) {
+  sounds[id].sound.stop();
 }
 function memeDead(state, playerHp, memeInd) {
   stopSound('battle')
@@ -482,7 +484,6 @@ function checkTile(tile, state) {
       const newState = update(state2, { lastVisited: { $merge: { tile: 0 } } })
       return newState
     }
-    // TODO: handle these
     case "heals": {
       playSound('healthPickup')
       const state1 = update(state, { things: { player: { $merge: { hp: state.things.player.lvl * 50 + 50 } } } })
@@ -686,214 +687,4 @@ function setWindowSize() {
     windowHeight: window.innerHeight
   }
 }
-
-class StartScreen extends Component {
-  render() {
-    const { switchScreen } = this.props
-    return (
-      <div className="StartScreen">
-        <h1 className="meme">MAZES AND MEMES</h1>
-        <h2 className="standard-text">Kill the memes and escape the maze!</h2>
-        <br />
-        <button id="start" onClick={switchScreen}>Start</button>
-      </div>
-    )
-  }
-}
-
-class GameOverScreen extends Component {
-  render() {
-    const { switchScreen } = this.props
-    return (
-      <div className="StartScreen">
-        <h1 className="meme">YOU DIED</h1>
-        <h2 className="standard-text">Game Over - Try again</h2>
-        <br />
-        <button id="start" onClick={switchScreen}>Start</button>
-      </div>
-    )
-  }
-}
-
-class WinGame extends Component {
-  render() {
-    return (
-      <div className="StartScreen">
-        <h1 className="meme">YOU ESCAPE THE MAZE!</h1>
-        <h2 className="standard-text">It's time to collect your reward!</h2>
-        <br />
-        <form action="https://youtu.be/oHg5SJYRHA0">
-          <input id="win" type="submit" value="Collect!" />
-        </form>
-      </div>
-    )
-  }
-}
-
-class MazeScreen extends Component {
-  // player movement functions
-  render() {
-    const { fog, things, levels, currentLevel, up, down, left, right, mazeLog, windowWidth, windowHeight } = this.props
-    const { player } = things
-    const maze = levels[currentLevel]
-    const hpStyle = {
-      height: (((player.lvl * 50) + 50) - (((player.lvl * 50) + 50) - player.hp)) / ((player.lvl * .5) + .5) + '%'
-    }
-    const xpStyle = {
-      height: ((player.lvl * 100) - (player.lvl * 100 - player.xp)) / player.lvl + '%'
-    }
-    const tileSize = document.getElementsByClassName('tile').item(0) ? document.getElementsByClassName('tile').item(0).clientHeight : 40
-    const numCols = Math.floor((windowWidth / tileSize)-1)
-    const numRows = Math.floor((windowHeight / tileSize)-8)
-    let startX = player.coords.x - (Math.floor(numCols / 2));
-    let startY = player.coords.y - (Math.floor(numRows / 2));
-    if (startX < 0) startX = 0;
-    if (startY < 0) startY = 0;
-    let endX = startX + numCols;
-    let endY = startY + numRows;
-    if (endX > maze.length) {
-      startX = numCols > maze.length ? 0 : startX - (endX - maze.length);
-      endX = maze.length;
-    }
-    if (endY > maze[0].length) {
-      startY = numRows > maze[0].length ? 0 : startY - (endY - maze[0].length);
-      endY = maze[0].length;
-    }
-    let rows = [], tileClass, row;
-    for (let y = startY; y < endY; y++) {
-      row = [];
-      for (let x = startX; x < endX; x++) {
-        // check things and add class to tileClass
-        // player
-        if (maze[x][y] === 'player') {
-          tileClass = 'player'
-        } else if (maze[x][y] === 'boss') {
-          tileClass = 'boss'
-        } else if (maze[x][y] === 'weapons') {
-          tileClass = 'weapons'
-        } else if (maze[x][y] === 'upstairs') {
-          tileClass = 'upstairs'
-        } else if (maze[x][y] === 'downstairs') {
-          tileClass = 'downstairs'
-        } else if (maze[x][y] === 'memes') {
-          tileClass = 'memes'
-        } else if (maze[x][y] === 'heals') {
-          tileClass = 'heals'
-        } else if (maze[x][y] === 0) {
-          tileClass = 'tunnel'
-        } else {
-          tileClass = 'wall'
-        }
-        if (fog) {
-          const xDiff = player.coords.x - x,
-            yDiff = player.coords.y - y;
-          if (Math.abs(xDiff) > 3 || Math.abs(yDiff) > 3) {
-            tileClass += ' fog transparent';
-          } else if (Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2)) >= 5) {
-            tileClass += ' fog transparent';
-          }
-        }
-        row.push(React.createElement('span', { className: 'tile ' + tileClass, key: x + 'x' + y }, ' '));
-      }
-      rows.push(React.createElement('div', { className: 'boardRow', key: 'row' + y }, row))
-    }
-    return (
-      <div className="MazeScreen">
-        <div className="maze">
-          {rows}
-        </div>
-        <div className="mazeMsg">
-          <h2>{mazeLog}</h2>
-        </div>
-        <div className="dPad-container">
-          <h3>HP</h3>
-          <div className="hpContainer">
-            <div className="hpBar" style={hpStyle}>{player.hp}</div>
-          </div>
-          <div id="up" onClick ={up} className="dPad clickable">
-            <svg viewBox="0 0 100 100">
-              <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
-            </svg>
-          </div>
-          <h3>XP</h3>
-          <div className="xpContainer">
-            <div className="xpBar" style={xpStyle}>{player.xp}</div>
-          </div>
-          <div id="left" onClick ={left} className="dPad clickable">
-            <svg viewBox="0 0 100 100">
-              <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
-            </svg>
-          </div>
-          <div id="center" className="dPad"></div>
-          <div id="right" onClick ={right} className="dPad clickable">
-            <svg viewBox="0 0 100 100">
-              <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
-            </svg>
-          </div>
-          <div id="down" onClick ={down} className="dPad clickable">
-            <svg viewBox="0 0 100 100">
-              <path className="arrow" d="M50 0l10 10-40 40 40 40-10 10L0 50z" />
-            </svg>
-          </div>
-        </div>
-      </div>
-    )
-  }
-}
-
-class CombatScreen extends Component {
-
-  render() {
-    const { things, currentLevel, attack, attackMsg, hitMsg, run, isBoss } = this.props
-    const x = things.player.coords.x
-    const y = things.player.coords.y
-    const arr = isBoss ? things.boss[currentLevel - 1].filter(obj => obj.coords.x === x && obj.coords.y === y) : things.memes[currentLevel - 1].filter(obj => obj.coords.x === x && obj.coords.y === y)
-    const meme = arr[0]
-    const memeLvl = isBoss ? `It's...` : `You encounter a level ${currentLevel}`
-    const memeName = isBoss ? `Over 9000!` : `${meme.name}`
-    const divStyle = {
-      backgroundImage: `url(${meme.url})`,
-      width: `${meme.width}px`,
-      height: `${meme.height}px`
-    };
-    const memeHpStyle = isBoss ? {
-      width: ((((currentLevel + 1) * 30) - ((currentLevel + 1) * 30 - meme.hp)) / (currentLevel + 1)) * 3.33 + '%'
-    } :
-      {
-        width: (((currentLevel * 30) - (currentLevel * 30 - meme.hp)) / currentLevel) * 3.33 + '%'
-      }
-    const playerHpStyle = {
-      width: (((things.player.lvl * 50) + 50) - (((things.player.lvl * 50) + 50) - things.player.hp)) / ((things.player.lvl * .5) + .5) + '%'
-    }
-    return (
-      <div className="CombatScreen">
-        <div id="meme" style={divStyle}>
-          <div id="memeLvl">{memeLvl}</div>
-          <div id="memeName">{memeName}</div>
-        </div>
-        <div className="combat-log">
-          <ul>
-            <li id="li0">{attackMsg}</li>
-            <li id="li1">{hitMsg}</li>
-          </ul>
-        </div>
-        <div className="combatHpBars">
-          <div className="memeHp">
-            <div>Enemy's HP</div>
-            <div className="memeHpBar" style={memeHpStyle}>{meme.hp}</div>
-          </div>
-          <div className="playerHp">
-            <div>Your HP</div>
-            <div className="hpBar" style={playerHpStyle}>{things.player.hp}</div>
-          </div>
-        </div>
-        <div className="combat">
-          <button id="attak" onClick={attack}>Attack</button>
-          <button id="run" onClick={run}>Run</button>
-        </div>
-      </div>
-    )
-  }
-}
-
-export default App;
+export default App

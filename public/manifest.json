@@ -1,10 +1,10 @@
 {
-  "short_name": "Mazes and Memes",
+  "short_name": "Mazes&Memes",
   "name": "Mazes and Memes",
   "icons": [
     {
       "src": "Mlogo.png",
-      "sizes": "192x192",
+      "sizes": "128x128",
       "type": "image/png"
     }
   ],
