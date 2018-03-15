@@ -14,12 +14,9 @@ class CombatScreen extends Component {
       width: `${meme.width}px`,
       height: `${meme.height}px`
     };
-    const memeHpStyle = isBoss ? {
-      width: ((((currentLevel + 1) * 30) - ((currentLevel + 1) * 30 - meme.hp)) / (currentLevel + 1)) * 3.33 + '%'
-    } :
-      {
-        width: (((currentLevel * 30) - (currentLevel * 30 - meme.hp)) / currentLevel) * 3.33 + '%'
-      }
+    const memeHpStyle = {
+      width: (((meme.lvl * 30) - (meme.lvl * 30 - meme.hp)) / meme.lvl) * 3.33 + '%'
+    }
     const playerHpStyle = {
       width: (((things.player.lvl * 50) + 50) - (((things.player.lvl * 50) + 50) - things.player.hp)) / ((things.player.lvl * .5) + .5) + '%'
     }

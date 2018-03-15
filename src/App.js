@@ -186,7 +186,7 @@ class App extends Component {
         let packedBossCoord = this.getEmpty(thingCoords, levels[l])
         let bossCoord = packedBossCoord[0]
         thingCoords.push(bossCoord)
-        boss[4][0] = { coords: bossCoord, lvl: 10, hp: 300, xp: 0, damgMod: 3, name: "Over 9000!", url: 'https://vignette.wikia.nocookie.net/dragonball/images/4/4b/VegetaItsOver9000-02.png/revision/latest?cb=20100724145819', width: 640, height: 480 }
+        boss[4][0] = { coords: bossCoord, lvl: 14, hp: 420, xp: 0, damgMod: 5, name: "Over 9000!", url: 'https://vignette.wikia.nocookie.net/dragonball/images/4/4b/VegetaItsOver9000-02.png/revision/latest?cb=20100724145819', width: 640, height: 480 }
       } else {
         let packedDownstairsCoord = this.getEmpty(thingCoords, levels[l])
         let downstairsCoord = packedDownstairsCoord[0]
