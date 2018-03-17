@@ -16,6 +16,7 @@ import lose from './sounds/lose.mp3'
 import runAway from './sounds/run.mp3'
 import stairs from './sounds/stairs.mp3'
 import weaponPickup from './sounds/weaponPickup.mp3'
+import idb from 'idb'
 
 const sounds = {
   battle: {
@@ -103,19 +104,6 @@ class App extends Component {
   }
 
   componentDidMount() {
-    // function to get meme json data
-    const getMemes = () => {
-      fetch('https://api.imgflip.com/get_memes')
-        .then(status)
-        .then(json)
-        .then((data) => {
-          this.setState({
-            memeJson: data.data.memes
-          })
-        }).catch((error) => {
-          console.log('Request failed', error);
-        });
-    }
     // response status
     const status = (response) => {
       if (response.status >= 200 && response.status < 300) {
@@ -128,7 +116,42 @@ class App extends Component {
     const json = (response) => {
       return response.json()
     }
-    getMemes()
+
+    const storeMemes = () => {
+      const dbPromise = idb.open('memeDB', 1, (upgradeDB) => {
+        upgradeDB.createObjectStore('memes', { keyPath: 'id' })
+      })
+
+      dbPromise.then((db) => {
+        const memesStore = db.transaction('memes')
+          .objectStore('memes')
+        memesStore.getAll().then((memeJson) => {
+          this.setState({ memeJson })
+        })
+      })
+
+      dbPromise.then((db) => {
+        fetch('https://api.imgflip.com/get_memes')
+          .then(status)
+          .then(json)
+          .then((data) => {
+            const tx = db.transaction('memes', 'readwrite')
+            const memesStore = tx.objectStore('memes')
+            data.data.memes.forEach((meme) => {
+              memesStore.put(meme)
+            })
+            return tx.complete
+          }).then(() => {
+            const memesStore = db.transaction('memes')
+              .objectStore('memes')
+            memesStore.getAll().then((memeJson) => {
+              this.setState({ memeJson })
+            })
+          })
+      })
+    }
+
+    storeMemes()
     this.resizeWindow()
   }
   resizeWindow = () => {
