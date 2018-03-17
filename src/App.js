@@ -136,14 +136,6 @@ class App extends Component {
       })
 
       dbPromise.then((db) => {
-        const memesStore = db.transaction('memes')
-          .objectStore('memes')
-        memesStore.getAll().then((memeJson) => {
-          this.setState({ memeJson })
-        })
-      })
-
-      dbPromise.then((db) => {
         fetch('https://api.imgflip.com/get_memes')
           .then(status)
           .then(json)
@@ -161,6 +153,14 @@ class App extends Component {
               this.setState({ memeJson })
             })
           })
+      })
+
+      dbPromise.then((db) => {
+        const memesStore = db.transaction('memes')
+          .objectStore('memes')
+        memesStore.getAll().then((memeJson) => {
+          this.setState({ memeJson })
+        })
       })
     }
     if (!('indexedDB' in window)) {
