@@ -104,6 +104,19 @@ class App extends Component {
   }
 
   componentDidMount() {
+    // function to get meme json data
+    const getMemes = () => {
+      fetch('https://api.imgflip.com/get_memes')
+        .then(status)
+        .then(json)
+        .then((data) => {
+          this.setState({
+            memeJson: data.data.memes
+          })
+        }).catch((error) => {
+          console.log('Request failed', error);
+        });
+    }
     // response status
     const status = (response) => {
       if (response.status >= 200 && response.status < 300) {
@@ -117,7 +130,7 @@ class App extends Component {
       return response.json()
     }
 
-    const storeMemes = () => {
+    const memeDB = () => {
       const dbPromise = idb.open('memeDB', 1, (upgradeDB) => {
         upgradeDB.createObjectStore('memes', { keyPath: 'id' })
       })
@@ -150,8 +163,11 @@ class App extends Component {
           })
       })
     }
-
-    storeMemes()
+    if (!('indexedDB' in window)) {
+      getMemes()
+    } else {
+      memeDB()
+    }
     this.resizeWindow()
   }
   resizeWindow = () => {
